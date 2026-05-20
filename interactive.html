@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Velour — Luxury Hotel Booking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link rel="stylesheet" href="Style/interactive_style.css">
+</head>
+<body>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"><i class="ti ti-check"></i><span id="toastMsg">Copied!</span></div>
+
+<!-- ── SIGN-IN MODAL ── -->
+<div class="modal-overlay" id="signinModal">
+  <div class="modal" style="max-width:420px;">
+    <button class="modal-close" onclick="closeModal('signinModal')"><i class="ti ti-x"></i></button>
+    <p class="modal-ey">Welcome back</p>
+    <h2 class="modal-title">Sign in to Velour</h2>
+    <p class="modal-sub">Access your bookings, saved hotels, and member rates.</p>
+    <div class="form-row single"><div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" placeholder="your@email.com"></div></div>
+    <div class="form-row single" style="margin-bottom:1.25rem;"><div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" placeholder="••••••••"></div></div>
+    <div class="modal-actions">
+      <button class="btn-modal-primary" onclick="handleSignIn()">Sign in</button>
+      <button class="btn-modal-secondary" onclick="closeModal('signinModal')">Cancel</button>
+    </div>
+    <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:1rem;font-weight:300;">Don't have an account? <span style="color:var(--gold);cursor:pointer;" onclick="handleSignIn()">Join free</span></p>
+  </div>
+</div>
+
+<!-- ── BOOKING MODAL ── -->
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('bookingModal')"><i class="ti ti-x"></i></button>
+    <div id="bookingForm">
+      <p class="modal-ey">Reserve your stay</p>
+      <h2 class="modal-title" id="bookModalTitle">Hôtel de la Lumière</h2>
+      <div class="booking-summary">
+        <p class="bs-hotel" id="bsSummaryHotel">Hôtel de la Lumière — Paris, France</p>
+        <p class="bs-detail" id="bsSummaryDates">Jun 12 – Jun 16 · 4 nights · 2 guests</p>
+        <div class="bs-price-row">
+          <span class="bs-total-label">Estimated total</span>
+          <span class="bs-total" id="bsTotal">$1,520</span>
+        </div>
+      </div>
+      <div class="modal-divider"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">First name</label><input class="form-input" type="text" placeholder="Sophie"></div>
+        <div class="form-group"><label class="form-label">Last name</label><input class="form-input" type="text" placeholder="Anderson"></div>
+      </div>
+      <div class="form-row single"><div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" placeholder="your@email.com"></div></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Check-in</label><input class="form-input" type="date" id="bookCheckin"></div>
+        <div class="form-group"><label class="form-label">Check-out</label><input class="form-input" type="date" id="bookCheckout"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Guests</label>
+          <select class="form-input"><option>1 adult</option><option selected>2 adults</option><option>2 adults, 1 child</option><option>2 adults, 2 children</option><option>3 adults</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">Room type</label>
+          <select class="form-input" id="roomSelect"><option>Deluxe Room</option><option>Superior Room</option><option>Junior Suite</option><option>Grand Suite</option></select>
+        </div>
+      </div>
+      <div class="form-row single"><div class="form-group"><label class="form-label">Special requests (optional)</label><input class="form-input" type="text" placeholder="e.g. high floor, quiet room, anniversary setup…"></div></div>
+      <div class="modal-divider"></div>
+      <p class="form-label" style="margin-bottom:.6rem;">Payment details</p>
+      <div class="form-row single"><div class="form-group"><label class="form-label">Card number</label><input class="form-input" type="text" placeholder="4242 4242 4242 4242"></div></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Expiry</label><input class="form-input" type="text" placeholder="MM / YY"></div>
+        <div class="form-group"><label class="form-label">CVV</label><input class="form-input" type="text" placeholder="123"></div>
+      </div>
+      <div class="modal-actions" style="margin-top:1.25rem;">
+        <button class="btn-modal-primary" onclick="confirmBooking()">Confirm booking</button>
+        <button class="btn-modal-secondary" onclick="closeModal('bookingModal')">Cancel</button>
+      </div>
+      <p style="font-size:11px;color:var(--hint);text-align:center;margin-top:.75rem;font-weight:300;"><i class="ti ti-lock" style="font-size:12px;vertical-align:-2px;margin-right:3px;"></i>Secure booking · Free cancellation up to 48 hrs before check-in</p>
+    </div>
+    <div id="bookingSuccess" class="success-state" style="display:none;">
+      <div class="success-icon"><i class="ti ti-circle-check"></i></div>
+      <h2 class="success-title">Booking confirmed!</h2>
+      <p class="success-sub">Your reservation has been placed. A confirmation email will be sent to you shortly.<br><br>Booking reference: <strong style="color:var(--gold);letter-spacing:.1em;">VLR-<span id="bookRef"></span></strong></p>
+      <div style="margin-top:1.5rem;">
+        <button class="btn-modal-primary" onclick="closeModal('bookingModal')">Back to browsing</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── NAV ── -->
+<nav class="nav">
+  <div class="logo" onclick="showPage('index')">Velour</div>
+  <ul class="nav-links">
+    <li><a href="#" id="nav-hotels" onclick="showPage('hotels');return false;">Hotels</a></li>
+    <li><a href="#" id="nav-destinations" onclick="showPage('destinations');return false;">Destinations</a></li>
+    <li><a href="#" id="nav-offers" onclick="showPage('offers');return false;">Offers</a></li>
+  </ul>
+  <button class="btn-signin" onclick="openModal('signinModal')">Sign in</button>
+</nav>
+
+<!-- ════════════════════════════════════════════
+     INDEX PAGE
+════════════════════════════════════════════ -->
+<div class="page active" id="page-index">
+  <section class="index-hero">
+    <div class="hg"></div>
+    <div class="hero-collage">
+      <div class="hero-img">
+        <svg viewBox="0 0 200 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <rect width="200" height="400" fill="#1a1728"/><rect x="20" y="60" width="160" height="280" rx="2" fill="#2a2438" opacity="0.7"/><rect x="40" y="30" width="120" height="200" rx="1" fill="#332d45" opacity="0.5"/><rect x="60" y="200" width="80" height="120" rx="1" fill="#3d3555" opacity="0.4"/><rect x="30" y="280" width="50" height="80" rx="1" fill="#251f36" opacity="0.8"/><rect x="90" y="310" width="60" height="50" rx="1" fill="#1e1830" opacity="0.9"/><line x1="20" y1="60" x2="180" y2="60" stroke="#d4af72" stroke-width="0.5" opacity="0.3"/><line x1="20" y1="340" x2="180" y2="340" stroke="#d4af72" stroke-width="0.5" opacity="0.2"/><rect x="70" y="100" width="60" height="40" rx="1" fill="#d4af72" opacity="0.06"/><text x="100" y="225" text-anchor="middle" fill="#d4af72" font-size="8" opacity="0.25" font-family="serif" font-style="italic">Santorini</text>
+        </svg>
+      </div>
+      <div class="hero-img">
+        <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <rect width="200" height="200" fill="#12101e"/><rect x="0" y="100" width="200" height="100" fill="#0d0b18"/><ellipse cx="100" cy="100" rx="80" ry="10" fill="#1e1b30" opacity="0.6"/><rect x="60" y="30" width="80" height="75" rx="2" fill="#2a2640"/><rect x="75" y="50" width="12" height="20" rx="1" fill="#d4af72" opacity="0.15"/><rect x="95" y="50" width="12" height="20" rx="1" fill="#d4af72" opacity="0.1"/><rect x="115" y="50" width="12" height="20" rx="1" fill="#d4af72" opacity="0.08"/>
+        </svg>
+      </div>
+      <div class="hero-img">
+        <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <rect width="200" height="200" fill="#0e1218"/><rect x="0" y="130" width="200" height="70" fill="#090c10"/><rect x="20" y="40" width="160" height="90" rx="1" fill="#1a2230"/><rect x="30" y="50" width="20" height="30" rx="1" fill="#253040"/><rect x="55" y="50" width="20" height="30" rx="1" fill="#253040"/><rect x="80" y="50" width="20" height="30" rx="1" fill="#253040"/><rect x="105" y="50" width="20" height="30" rx="1" fill="#253040"/><rect x="130" y="50" width="20" height="30" rx="1" fill="#253040"/>
+        </svg>
+      </div>
+    </div>
+    <div class="index-hero-content">
+      <p class="eyebrow">Curated luxury escapes</p>
+      <h1 class="hero-title">Find your<br><em>perfect</em><br>sanctuary</h1>
+      <p class="hero-sub">Handpicked hotels and resorts across 120+ destinations — where every stay becomes a story worth telling.</p>
+    </div>
+  </section>
+
+  <div style="padding:0 2rem;">
+    <div class="search-card">
+      <div class="search-tabs">
+        <button class="search-tab active" onclick="setSearchTab(this)">Hotels</button>
+        <button class="search-tab" onclick="setSearchTab(this)">Resorts</button>
+        <button class="search-tab" onclick="setSearchTab(this)">Villas</button>
+      </div>
+      <div class="search-fields">
+        <div class="field-group"><label class="field-label">Destination</label><input class="field-input" id="heroDestInput" type="text" placeholder="Where would you like to go?"></div>
+        <div class="field-group"><label class="field-label">Check-in</label><input class="field-input" id="heroCheckin" type="date"></div>
+        <div class="field-group"><label class="field-label">Check-out</label><input class="field-input" id="heroCheckout" type="date"></div>
+        <div class="field-group"><label class="field-label">&nbsp;</label><button class="btn-search" onclick="doSearch()"><i class="ti ti-search"></i> Search</button></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="sec-header">
+      <div><p class="sec-eyebrow">Explore by place</p><h2 class="sec-title">Popular destinations</h2></div>
+      <button class="btn-viewall" onclick="showPage('destinations')">All destinations <i class="ti ti-arrow-right"></i></button>
+    </div>
+    <div class="dest-grid">
+      <div class="dest-card" onclick="navToDestination('Siem Reap')">
+        <div class="dest-bg"><svg width="100%" height="100%" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="#1a1228"/><rect x="0" y="180" width="400" height="120" fill="#12090f"/><rect x="0" y="100" width="400" height="85" fill="#1e1530"/><ellipse cx="200" cy="100" rx="150" ry="20" fill="#2a1f45" opacity="0.5"/><rect x="30" y="50" width="50" height="130" rx="3" fill="#2a2240"/><rect x="90" y="80" width="40" height="100" rx="3" fill="#231c38"/><rect x="140" y="40" width="60" height="140" rx="3" fill="#2d2550"/><rect x="210" y="65" width="45" height="115" rx="3" fill="#261e42"/><rect x="265" y="30" width="55" height="150" rx="3" fill="#322a58"/><rect x="330" y="55" width="50" height="125" rx="3" fill="#2a2248"/><path d="M0 180 Q100 165 200 175 Q300 185 400 170 L400 300 L0 300 Z" fill="#15102a" opacity="0.8"/><text x="200" y="260" text-anchor="middle" fill="#d4af72" font-size="11" opacity="0.3" font-family="serif" font-style="italic">Siem Reap</text></svg></div>
+        <div class="dest-overlay"><div class="dest-info"><p class="dest-country">Cambodia</p><p class="dest-city">Siem Reap</p><p class="dest-count">142 properties</p></div></div>
+      </div>
+      <div class="dest-card" onclick="navToDestination('Kampot')">
+        <div class="dest-bg"><svg width="100%" height="100%" viewBox="0 0 200 280" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="280" fill="#12182a"/><rect x="0" y="140" width="200" height="140" fill="#0a1020"/><rect x="20" y="50" width="35" height="95" rx="20" fill="#1e2d4a"/><rect x="65" y="70" width="30" height="75" rx="15" fill="#192540"/><rect x="105" y="40" width="40" height="105" rx="20" fill="#243660"/><rect x="155" y="60" width="30" height="85" rx="15" fill="#1e2d50"/><rect x="0" y="145" width="200" height="8" fill="#132038"/><ellipse cx="100" cy="148" rx="90" ry="5" fill="#1a2d50" opacity="0.6"/><circle cx="40" cy="148" r="4" fill="#d4af72" opacity="0.3"/><circle cx="80" cy="143" r="5" fill="#d4af72" opacity="0.25"/><circle cx="120" cy="146" r="4" fill="#d4af72" opacity="0.2"/></svg></div>
+        <div class="dest-overlay"><div class="dest-info"><p class="dest-country">Cambodia</p><p class="dest-city">Kampot</p><p class="dest-count">58 properties</p></div></div>
+      </div>
+      <div class="dest-card" onclick="navToDestination('Phnom Penh')">
+        <div class="dest-bg"><svg width="100%" height="100%" viewBox="0 0 200 280" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="280" fill="#0f1a14"/><rect x="0" y="150" width="200" height="130" fill="#0a1210"/><rect x="10" y="60" width="180" height="95" rx="2" fill="#162218"/><rect x="20" y="70" width="20" height="50" rx="1" fill="#1e3020"/><rect x="45" y="75" width="15" height="45" rx="1" fill="#1a2c1c"/><rect x="65" y="65" width="25" height="55" rx="1" fill="#203828"/><rect x="95" y="70" width="20" height="50" rx="1" fill="#1c3020"/><rect x="120" y="60" width="30" height="60" rx="1" fill="#244030"/><rect x="155" y="68" width="20" height="52" rx="1" fill="#1e3420"/></svg></div>
+        <div class="dest-overlay"><div class="dest-info"><p class="dest-country">Cambodia</p><p class="dest-city">Phnom Penh</p><p class="dest-count">73 properties</p></div></div>
+      </div>
+      <div class="dest-card" onclick="navToDestination('Battambang')">
+        <div class="dest-bg"><svg width="100%" height="100%" viewBox="0 0 200 280" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="280" fill="#1a100a"/><rect x="0" y="140" width="200" height="140" fill="#120c08"/><rect x="0" y="60" width="200" height="85" fill="#1e1510"/><rect x="60" y="30" width="80" height="115" rx="2" fill="#2a1d14"/><rect x="80" y="10" width="40" height="35" rx="2" fill="#332418"/><rect x="90" y="0" width="20" height="20" rx="1" fill="#3d2c1e"/><rect x="40" y="80" width="30" height="65" rx="2" fill="#241810"/><rect x="130" y="75" width="30" height="70" rx="2" fill="#241810"/><path d="M0 140 Q50 130 100 138 Q150 146 200 135 L200 280 L0 280 Z" fill="#15100a" opacity="0.8"/></svg></div>
+        <div class="dest-overlay"><div class="dest-info"><p class="dest-country">Cambodia</p><p class="dest-city">Battambang</p><p class="dest-count">41 properties</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="section">
+    <div class="sec-header">
+      <div><p class="sec-eyebrow">Editor's selection</p><h2 class="sec-title">Featured hotels</h2></div>
+      <button class="btn-viewall" onclick="showPage('hotels')">View all hotels <i class="ti ti-arrow-right"></i></button>
+    </div>
+    <div class="hotel-grid">
+      <div class="hotel-card">
+        <div class="hotel-thumb">
+          <svg width="100%" height="100%" viewBox="0 0 300 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="160" fill="#1a1228"/><rect x="60" y="20" width="180" height="100" rx="2" fill="#2a2040"/><rect x="80" y="35" width="25" height="50" rx="1" fill="#332850"/><rect x="115" y="40" width="20" height="45" rx="1" fill="#2e2448"/><rect x="145" y="30" width="30" height="55" rx="1" fill="#362c58"/><rect x="185" y="38" width="22" height="47" rx="1" fill="#2a2048"/><rect x="0" y="120" width="300" height="40" fill="#0f0c1e"/><rect x="90" y="100" width="120" height="25" rx="1" fill="#1a1530"/><rect x="120" y="10" width="60" height="15" rx="1" fill="#3d3060"/></svg>
+          <div class="hotel-badge">New</div>
+          <div class="hotel-wishlist" onclick="toggleWish(this,event)"><i class="ti ti-heart"></i></div>
+        </div>
+        <div class="hotel-body">
+          <p class="hotel-location">Kampot, Cambodia</p>
+          <h3 class="hotel-name">Hôtel de la Lumière</h3>
+          <div class="hotel-meta"><span class="hotel-stars">★★★★★</span><span class="hotel-rating">9.4 · Exceptional</span></div>
+          <div class="hotel-price-row">
+            <div class="hotel-price">$380 <span>/ night</span></div>
+            <button class="btn-view" onclick="openBooking('Hôtel de la Lumière','Kampot, Cambodia',380)">View <i class="ti ti-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="hotel-card">
+        <div class="hotel-thumb">
+          <svg width="100%" height="100%" viewBox="0 0 300 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="160" fill="#0f1a20"/><rect x="0" y="90" width="300" height="70" fill="#0a1218"/><rect x="0" y="50" width="300" height="45" fill="#122030"/><rect x="30" y="20" width="240" height="75" rx="40" fill="#1a3040" opacity="0.6"/><ellipse cx="150" cy="90" rx="120" ry="8" fill="#1e3850" opacity="0.5"/><circle cx="150" cy="62" r="25" fill="#243e58" opacity="0.5"/><path d="M60 90 Q150 70 240 85" stroke="#d4af72" stroke-width="0.5" fill="none" opacity="0.2"/></svg>
+          <div class="hotel-badge">Top-rated</div>
+          <div class="hotel-wishlist" onclick="toggleWish(this,event)"><i class="ti ti-heart"></i></div>
+        </div>
+        <div class="hotel-body">
+          <p class="hotel-location">Siem Reap, Cambodia</p>
+          <h3 class="hotel-name">Aegean Blue Retreat</h3>
+          <div class="hotel-meta"><span class="hotel-stars">★★★★★</span><span class="hotel-rating">9.7 · Outstanding</span></div>
+          <div class="hotel-price-row">
+            <div class="hotel-price">$520 <span>/ night</span></div>
+            <button class="btn-view" onclick="openBooking('Aegean Blue Retreat','Siem Reap, Cambodia',520)">View <i class="ti ti-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="hotel-card">
+        <div class="hotel-thumb">
+          <svg width="100%" height="100%" viewBox="0 0 300 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="160" fill="#101a10"/><rect x="0" y="80" width="300" height="80" fill="#0a1208"/><rect x="10" y="20" width="280" height="65" fill="#162018"/><rect x="30" y="30" width="15" height="40" rx="7" fill="#1e3020"/><rect x="55" y="35" width="12" height="35" rx="6" fill="#1a2818"/><rect x="78" y="25" width="18" height="45" rx="9" fill="#243828"/><rect x="108" y="28" width="14" height="42" rx="7" fill="#1e3020"/><rect x="135" y="20" width="20" height="50" rx="10" fill="#2a4030"/><rect x="100" y="85" width="100" height="40" rx="2" fill="#152018"/><path d="M100 85 L150 65 L200 85 Z" fill="#1a2820"/></svg>
+          <div class="hotel-badge">Popular</div>
+          <div class="hotel-wishlist" onclick="toggleWish(this,event)"><i class="ti ti-heart"></i></div>
+        </div>
+        <div class="hotel-body">
+          <p class="hotel-location">Phnom Penh, Cambodia</p>
+          <h3 class="hotel-name">Ryokan Midori No Yuki</h3>
+          <div class="hotel-meta"><span class="hotel-stars">★★★★★</span><span class="hotel-rating">9.2 · Excellent</span></div>
+          <div class="hotel-price-row">
+            <div class="hotel-price">$290 <span>/ night</span></div>
+            <button class="btn-view" onclick="openBooking('Ryokan Midori No Yuki','Phnom Penh, Cambodia',290)">View <i class="ti ti-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="perks-strip">
+    <div class="perk"><i class="ti ti-shield-check perk-icon"></i><div><p class="perk-title">Best price guarantee</p><p class="perk-desc">Find a lower price? We'll match it and give you an extra 10% off.</p></div></div>
+    <div class="perk"><i class="ti ti-award perk-icon"></i><div><p class="perk-title">Curated selection</p><p class="perk-desc">Every hotel is personally verified by our team of travel experts.</p></div></div>
+    <div class="perk"><i class="ti ti-headset perk-icon"></i><div><p class="perk-title">24/7 concierge</p><p class="perk-desc">Our support team is always available before, during and after your stay.</p></div></div>
+    <div class="perk"><i class="ti ti-refresh perk-icon"></i><div><p class="perk-title">Free cancellation</p><p class="perk-desc">Plans change — most properties offer free cancellation up to 48 hours.</p></div></div>
+  </div>
+
+  <section class="section">
+    <div><p class="sec-eyebrow">Guest voices</p><h2 class="sec-title" style="margin-bottom:1.5rem;">What travellers say</h2></div>
+    <div class="testi-grid">
+      <div class="testi-card"><p class="testi-quote">"The curation on Velour is unmatched — every hotel we've booked has exceeded expectations. The Santorini villa was nothing short of a dream."</p><div class="testi-author"><div class="testi-avatar">SA</div><div><p class="testi-name">Sophie A.</p><p class="testi-trip">Santorini · June 2025</p></div></div></div>
+      <div class="testi-card"><p class="testi-quote">"From the first click to checkout, the experience was seamless. Found a gem of a ryokan in Kyoto I'd never have discovered otherwise."</p><div class="testi-author"><div class="testi-avatar">MK</div><div><p class="testi-name">Marc K.</p><p class="testi-trip">Kyoto · March 2025</p></div></div></div>
+      <div class="testi-card"><p class="testi-quote">"The 24/7 support team helped us rebook on the day of travel when our flights changed. That kind of care is rare — and deeply appreciated."</p><div class="testi-author"><div class="testi-avatar">LT</div><div><p class="testi-name">Léa T.</p><p class="testi-trip">Marrakech · Feb 2025</p></div></div></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-logo" onclick="showPage('index')">Velour</div>
+    <ul class="footer-links"><li><a>Privacy</a></li><li><a>Terms</a></li><li><a>Careers</a></li><li><a>Press</a></li></ul>
+    <p class="footer-copy">© 2026 Velour Travel Ltd.</p>
+  </footer>
+</div>
+
+<!-- ════════════════════════════════════════════
+     HOTELS PAGE
+════════════════════════════════════════════ -->
+<div class="page" id="page-hotels">
+  <div class="page-hero" style="position:relative;">
+    <div class="hg"></div>
+    <div class="page-hero-inner">
+      <div><p class="eyebrow">Curated collection</p><h1 class="page-title">Exceptional <em>hotels</em>,<br>worldwide</h1></div>
+      <p class="page-sub">Browse 2,400+ handpicked properties across 120 destinations — verified by our team of travel experts.</p>
+    </div>
+  </div>
+  <div class="search-bar-wrap">
+    <div class="search-bar-inner">
+      <div class="field-group"><label class="field-label">Destination</label><input class="field-input" id="hotelDestInput" type="text" placeholder="City, region or hotel name"></div>
+      <div class="field-group"><label class="field-label">Check-in</label><input class="field-input" type="date" id="hotelCheckin"></div>
+      <div class="field-group"><label class="field-label">Check-out</label><input class="field-input" type="date" id="hotelCheckout"></div>
+      <div class="field-group"><label class="field-label">Guests</label><input class="field-input" type="text" placeholder="2 adults"></div>
+      <button class="btn-search" onclick="doHotelSearch()"><i class="ti ti-search"></i> Search</button>
+    </div>
+  </div>
+  <div class="main-layout">
+    <aside class="sidebar">
+      <div class="filter-group">
+        <p class="filter-title">Price per night</p>
+        <div class="price-range">
+          <input type="range" class="range-slider" min="50" max="2000" value="1200" oninput="updatePrice(this)">
+          <div class="price-inputs">
+            <input class="price-input" type="text" value="$50" readonly>
+            <input class="price-input" type="text" value="$1,200" id="maxPrice" readonly>
+          </div>
+        </div>
+      </div>
+      <div class="filter-group">
+        <p class="filter-title">Star rating</p>
+        <div class="star-row">
+          <div class="star-option checked" onclick="toggleStar(this)"><div class="star-checkbox"></div><span class="star-label"><span>★★★★★</span> 5 stars</span></div>
+          <div class="star-option checked" onclick="toggleStar(this)"><div class="star-checkbox"></div><span class="star-label"><span>★★★★</span> 4 stars</span></div>
+          <div class="star-option" onclick="toggleStar(this)"><div class="star-checkbox"></div><span class="star-label"><span>★★★</span> 3 stars</span></div>
+        </div>
+      </div>
+      <div class="filter-group">
+        <p class="filter-title">Guest rating</p>
+        <div class="filter-chips">
+          <button class="chip active" onclick="toggleChip(this)">Any</button>
+          <button class="chip" onclick="toggleChip(this)">9+ Exc.</button>
+          <button class="chip" onclick="toggleChip(this)">8+ Great</button>
+          <button class="chip" onclick="toggleChip(this)">7+ Good</button>
+        </div>
+      </div>
+      <div class="filter-group">
+        <p class="filter-title">Amenities</p>
+        <div class="amenity-list">
+          <div class="amenity-item checked" onclick="toggleAmenity(this)"><div class="amenity-check"></div><span class="amenity-label">Free cancellation</span></div>
+          <div class="amenity-item" onclick="toggleAmenity(this)"><div class="amenity-check"></div><span class="amenity-label">Breakfast included</span></div>
+          <div class="amenity-item" onclick="toggleAmenity(this)"><div class="amenity-check"></div><span class="amenity-label">Pool</span></div>
+          <div class="amenity-item" onclick="toggleAmenity(this)"><div class="amenity-check"></div><span class="amenity-label">Spa &amp; wellness</span></div>
+          <div class="amenity-item checked" onclick="toggleAmenity(this)"><div class="amenity-check"></div><span class="amenity-label">Pet friendly</span></div>
+          <div class="amenity-item" onclick="toggleAmenity(this)"><div class="amenity-check"></div><span class="amenity-label">Airport transfer</span></div>
+          <div class="amenity-item" onclick="toggleAmenity(this)"><div class="amenity-check"></div><span class="amenity-label">Private beach</span></div>
+        </div>
+      </div>
+      <div class="filter-group">
+        <p class="filter-title">Style</p>
+        <div class="filter-chips">
+          <button class="chip" onclick="toggleChip(this)">Modern</button>
+          <button class="chip active" onclick="toggleChip(this)">Heritage</button>
+          <button class="chip" onclick="toggleChip(this)">Minimalist</button>
+          <button class="chip" onclick="toggleChip(this)">Eco</button>
+          <button class="chip" onclick="toggleChip(this)">Art Deco</button>
+        </div>
+      </div>
+    </aside>
+    <main class="results-panel">
+      <div class="results-header">
+        <div class="results-count">248 hotels<span>across all destinations</span></div>
+        <div class="sort-row">
+          <span class="sort-label">Sort</span>
+          <select class="sort-select" onchange="showToast('Sorted by: '+this.value)">
+            <option>Our recommendations</option><option>Price: low to high</option><option>Price: high to low</option><option>Guest rating</option><option>Star rating</option>
+          </select>
+        </div>
+      </div>
+      <div class="active-filters" id="activeFilters">
+        <div class="filter-tag" onclick="removeTag(this)">5★ <i class="ti ti-x"></i></div>
+        <div class="filter-tag" onclick="removeTag(this)">4★ <i class="ti ti-x"></i></div>
+        <div class="filter-tag" onclick="removeTag(this)">Free cancellation <i class="ti ti-x"></i></div>
+        <div class="filter-tag" onclick="removeTag(this)">Heritage <i class="ti ti-x"></i></div>
+        <div class="filter-tag" onclick="removeTag(this)">Pet friendly <i class="ti ti-x"></i></div>
+      </div>
+      <div class="hotels-list">
+        <!-- 8 hotel rows -->
+        <div class="hotel-row"><div class="hotel-row-img"><svg width="100%" height="100%" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="240" height="180" fill="#1a1228"/><rect x="0" y="100" width="240" height="80" fill="#0f0c1e"/><rect x="20" y="30" width="200" height="80" rx="2" fill="#2a2040"/><rect x="40" y="40" width="25" height="55" rx="1" fill="#332850"/><rect x="75" y="45" width="20" height="50" rx="1" fill="#2e2448"/><rect x="105" y="35" width="30" height="60" rx="1" fill="#362c58"/><rect x="145" y="42" width="22" height="52" rx="1" fill="#2a2048"/><rect x="175" y="38" width="25" height="55" rx="1" fill="#302648"/><rect x="80" y="110" width="80" height="30" rx="1" fill="#1a1530"/><rect x="100" y="15" width="40" height="18" rx="1" fill="#3d3060"/><path d="M0 100 Q60 92 120 97 Q180 102 240 95 L240 180 L0 180 Z" fill="#130f22" opacity="0.8"/></svg><div class="hotel-badge">Editor's pick</div><div class="hotel-wishlist" onclick="toggleWish(this,event)"><i class="ti ti-heart"></i></div></div><div class="hotel-row-body"><div><p class="hotel-location">Paris, France</p><h3 class="hotel-name">Hôtel de la Lumière</h3><div class="hotel-meta"><span class="hotel-stars">★★★★★</span><span class="hotel-rating">9.4 · Exceptional</span></div><p class="hotel-desc">A 19th-century mansion in the 8th arrondissement reimagined for the modern traveller. Bespoke interiors, a Michelin-starred restaurant, and uninterrupted views of the Seine.</p></div><div class="hotel-amenity-strip"><span class="amenity-pill"><i class="ti ti-pool"></i> Pool</span><span class="amenity-pill"><i class="ti ti-spa"></i> Spa</span><span class="amenity-pill"><i class="ti ti-tools-kitchen-2"></i> Breakfast</span><span class="amenity-pill"><i class="ti ti-paw"></i> Pets</span></div></div><div class="hotel-row-price"><div><p class="hotel-price-from">From</p><p class="hotel-price-big">$380</p><p class="hotel-price-night">/ night</p></div><div style="display:flex;flex-direction:column;gap:6px;width:100%;"><button class="btn-book" onclick="openBooking('Hôtel de la Lumière','Paris, France',380)">Book now</button><button class="btn-details" onclick="openBooking('Hôtel de la Lumière','Paris, France',380)">Details <i class="ti ti-arrow-right"></i></button></div></div></div>
+
+        <div class="hotel-row"><div class="hotel-row-img"><svg width="100%" height="100%" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="240" height="180" fill="#0f1a20"/><rect x="0" y="100" width="240" height="80" fill="#0a1218"/><rect x="0" y="60" width="240" height="45" fill="#122030"/><rect x="20" y="20" width="200" height="80" rx="40" fill="#1a3040" opacity="0.6"/><ellipse cx="120" cy="100" rx="100" ry="8" fill="#1e3850" opacity="0.5"/><rect x="80" y="30" width="80" height="75" rx="40" fill="#1e3a50" opacity="0.4"/><circle cx="120" cy="62" r="22" fill="#243e58" opacity="0.5"/><path d="M40 100 Q120 80 200 95" stroke="#d4af72" stroke-width="0.5" fill="none" opacity="0.2"/></svg><div class="hotel-badge">Top-rated</div><div class="hotel-wishlist" onclick="toggleWish(this,event)"><i class="ti ti-heart"></i></div></div><div class="hotel-row-body"><div><p class="hotel-location">Santorini, Greece</p><h3 class="hotel-name">Aegean Blue Retreat</h3><div class="hotel-meta"><span class="hotel-stars">★★★★★</span><span class="hotel-rating">9.7 · Outstanding</span></div><p class="hotel-desc">Suspended above the caldera on the cliffs of Oia, each suite offers an infinity pool and unobstructed views of the Aegean. Sunset here is a ritual.</p></div><div class="hotel-amenity-strip"><span class="amenity-pill"><i class="ti ti-pool"></i> Infinity pool</span><span class="amenity-pill"><i class="ti ti-beach"></i> Sea view</span><span class="amenity-pill"><i class="ti ti-tools-kitchen-2"></i> Breakfast</span></div></div><div class="hotel-row-price"><div><p class="hotel-price-from">From</p><p class="hotel-price-big">$520</p><p class="hotel-price-night">/ night</p></div><div style="display:flex;flex-direction:column;gap:6px;width:100%;"><button class="btn-book" onclick="openBooking('Aegean Blue Retreat','Santorini, Greece',520)">Book now</button><button class="btn-details" onclick="openBooking('Aegean Blue Retreat','Santorini, Greece',520)">Details <i class="ti ti-arrow-right"></i></button></div></div></div>
+
+        <div class="hotel-row"><div class="hotel-row-img"><svg width="100%" height="100%" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="240" height="180" fill="#101a10"/><rect x="0" y="90" width="240" height="90" fill="#0a1208"/><rect x="10" y="20" width="220" height="75" fill="#162018"/><rect x="20" y="28" width="14" height="45" rx="7" fill="#1e3020"/><rect x="42" y="32" width="11" height="38" rx="5" fill="#1a2818"/><rect x="62" y="23" width="16" height="52" rx="8" fill="#243828"/><rect x="88" y="26" width="13" height="48" rx="6" fill="#1e3020"/><rect x="110" y="20" width="18" height="55" rx="9" fill="#2a4030"/><rect x="138" y="24" width="13" height="50" rx="6" fill="#223820"/><rect x="90" y="95" width="60" height="45" rx="2" fill="#152018"/><path d="M90 95 L120 78 L150 95 Z" fill="#1a2820"/></svg><div class="hotel-badge">Popular</div><div class="hotel-wishlist" onclick="toggleWish(this,event)"><i class="ti ti-heart"></i></div></div><div class="hotel-row-body"><div><p class="hotel-location">Kyoto, Japan</p><h3 class="hotel-name">Ryokan Midori No Yuki</h3><div class="hotel-meta"><span class="hotel-stars">★★★★★</span><span class="hotel-rating">9.2 · Excellent</span></div><p class="hotel-desc">A historic ryokan nestled in the bamboo groves of Arashiyama. Traditional tatami rooms, private onsen baths, and a kaiseki dinner prepared by the innkeeper.</p></div><div class="hotel-amenity-strip"><span class="amenity-pill"><i class="ti ti-spa"></i> Onsen</span><span class="amenity-pill"><i class="ti ti-tools-kitchen-2"></i> Kaiseki</span><span class="amenity-pill"><i class="ti ti-leaf"></i> Garden</span></div></div><div class="hotel-row-price"><div><p class="hotel-price-from">From</p><p class="hotel-price-big">$290</p><p class="hotel-price-night">/ night</p></div><div style="display:flex;flex-direction:column;gap:6px;width:100%;"><button class="btn-book" onclick="openBooking('Ryokan Midori No Yuki','Kyoto, Japan',290)">Book now</button><button class="btn-details" onclick="openBooking('Ryokan Midori No Yuki','Kyoto, Japan',290)">Details <i class="ti ti-arrow-right"></i></button></div></div></div>
+
+        <div class="hotel-row"><div class="hotel-row-img"><svg width="100%" height="100%" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="240" height="180" fill="#1a100a"/><rect x="0" y="90" width="240" height="90" fill="#120c08"/><rect x="0" y="50" width="240" height="45" fill="#1e1510"/><rect x="70" y="25" width="100" height="70" rx="2" fill="#2a1d14"/><rect x="90" y="10" width="60" height="22" rx="2" fill="#332418"/><rect x="105" y="0" width="30" height="15" rx="1" fill="#3d2c1e"/><rect x="40" y="65" width="30" height="30" rx="1" fill="#241810"/><rect x="170" y="62" width="30" height="33" rx="1" fill="#241810"/><path d="M0 90 Q60 82 120 88 Q180 94 240 84 L240 180 L0 180 Z" fill="#15100a" opacity="0.8"/></svg><div class="hotel-badge">New</div><div class="hotel-wishlist" onclick="toggleWish(this,event)"><i class="ti ti-heart"></i></div></div><div class="hotel-row-body"><div><p class="hotel-location">Marrakech, Morocco</p><h3 class="hotel-name">Riad Al Boustane</h3><div class="hotel-meta"><span class="hotel-stars">★★★★★</span><span class="hotel-rating">9.1 · Excellent</span></div><p class="hotel-desc">Hidden behind a modest door in the medina, this restored 17th-century riad reveals a world of colourful tilework, scented courtyards, and rooftop terraces overlooking the Atlas mountains.</p></div><div class="hotel-amenity-strip"><span class="amenity-pill"><i class="ti ti-pool"></i> Plunge pool</span><span class="amenity-pill"><i class="ti ti-tools-kitchen-2"></i> Breakfast</span><span class="amenity-pill"><i class="ti ti-massage"></i> Hammam</span></div></div><div class="hotel-row-price"><div><p class="hotel-price-from">From</p><p class="hotel-price-big">$210</p><p class="hotel-price-night">/ night</p></div><div style="display:flex;flex-direction:column;gap:6px;width:100%;"><button class="btn-book" onclick="openBooking('Riad Al Boustane','Marrakech, Morocco',210)">Book now</button><button class="btn-details" onclick="openBooking('Riad Al Boustane','Marrakech, Morocco',210)">Details <i class="ti ti-arrow-right"></i></button></div></div></div>
+
+        <div class="hotel-row"><div class="hotel-row-img"><svg width="100%" height="100%" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="240" height="180" fill="#14121e"/><rect x="0" y="95" width="240" height="85" fill="#0e0c18"/><rect x="10" y="20" width="220" height="80" rx="3" fill="#1e1c30"/><rect x="30" y="30" width="40" height="60" rx="2" fill="#2a2848"/><rect x="80" y="25" width="35" height="65" rx="2" fill="#252340"/><rect x="125" y="32" width="45" height="58" rx="2" fill="#2e2c50"/><rect x="180" y="28" width="38" height="62" rx="2" fill="#28264a"/><rect x="50" y="100" width="140" height="35" rx="2" fill="#18162a"/><line x1="0" y1="95" x2="240" y2="95" stroke="#d4af72" stroke-width="0.3" opacity="0.2"/></svg><div class="hotel-badge">Award-winning</div><div class="hotel-wishlist" onclick="toggleWish(this,event)"><i class="ti ti-heart"></i></div></div><div class="hotel-row-body"><div><p class="hotel-location">Amalfi Coast, Italy</p><h3 class="hotel-name">Villa Bellavista Positano</h3><div class="hotel-meta"><span class="hotel-stars">★★★★★</span><span class="hotel-rating">9.6 · Outstanding</span></div><p class="hotel-desc">Carved into the terraced hillside above Positano, this 1930s art deco villa offers panoramic sea views, a clifftop restaurant, and boat excursions to sea caves.</p></div><div class="hotel-amenity-strip"><span class="amenity-pill"><i class="ti ti-sailboat"></i> Boat tours</span><span class="amenity-pill"><i class="ti ti-spa"></i> Spa</span><span class="amenity-pill"><i class="ti ti-tools-kitchen-2"></i> Restaurant</span></div></div><div class="hotel-row-price"><div><p class="hotel-price-from">From</p><p class="hotel-price-big">$680</p><p class="hotel-price-night">/ night</p></div><div style="display:flex;flex-direction:column;gap:6px;width:100%;"><button class="btn-book" onclick="openBooking('Villa Bellavista Positano','Amalfi Coast, Italy',680)">Book now</button><button class="btn-details" onclick="openBooking('Villa Bellavista Positano','Amalfi Coast, Italy',680)">Details <i class="ti ti-arrow-right"></i></button></div></div></div>
+
+        <div class="hotel-row"><div class="hotel-row-img"><svg width="100%" height="100%" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="240" height="180" fill="#0e1810"/><rect x="0" y="100" width="240" height="80" fill="#091008"/><ellipse cx="120" cy="50" rx="100" ry="40" fill="#1a3020" opacity="0.5"/><rect x="60" y="60" width="120" height="55" rx="3" fill="#0e1810"/><rect x="70" y="65" width="15" height="40" rx="2" fill="#16261a"/><rect x="92" y="60" width="12" height="45" rx="2" fill="#12221a"/><rect x="112" y="63" width="18" height="42" rx="2" fill="#1a2e20"/><rect x="138" y="60" width="13" height="45" rx="2" fill="#162616"/><rect x="80" y="110" width="80" height="35" rx="2" fill="#0e1810"/><path d="M80 110 L120 95 L160 110 Z" fill="#142010"/></svg><div class="hotel-badge">Last 2 rooms</div><div class="hotel-wishlist" onclick="toggleWish(this,event)"><i class="ti ti-heart"></i></div></div><div class="hotel-row-body"><div><p class="hotel-location">Costa Rica</p><h3 class="hotel-name">Refugio Selvático</h3><div class="hotel-meta"><span class="hotel-stars">★★★★★</span><span class="hotel-rating">9.3 · Excellent</span></div><p class="hotel-desc">A sustainably-built eco lodge deep in the Monteverde cloud forest. Open-air bungalows dissolve into the canopy; guided night walks and birdwatching at dawn are included.</p></div><div class="hotel-amenity-strip"><span class="amenity-pill"><i class="ti ti-leaf"></i> Eco-certified</span><span class="amenity-pill"><i class="ti ti-fish"></i> Wildlife tours</span><span class="amenity-pill"><i class="ti ti-tools-kitchen-2"></i> Farm-to-table</span></div></div><div class="hotel-row-price"><div><p class="hotel-price-from">From</p><p class="hotel-price-big">$340</p><p class="hotel-price-night">/ night</p></div><div style="display:flex;flex-direction:column;gap:6px;width:100%;"><button class="btn-book" onclick="openBooking('Refugio Selvático','Costa Rica',340)">Book now</button><button class="btn-details" onclick="openBooking('Refugio Selvático','Costa Rica',340)">Details <i class="ti ti-arrow-right"></i></button></div></div></div>
+
+        <div class="hotel-row"><div class="hotel-row-img"><svg width="100%" height="100%" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="240" height="180" fill="#1a1410"/><rect x="0" y="90" width="240" height="90" fill="#100c08"/><rect x="20" y="20" width="200" height="75" rx="1" fill="#2a2018"/><rect x="30" y="28" width="18" height="55" rx="1" fill="#362a20"/><rect x="58" y="24" width="22" height="59" rx="1" fill="#3a2e22"/><rect x="90" y="20" width="20" height="63" rx="1" fill="#2e2418"/><rect x="120" y="26" width="18" height="57" rx="1" fill="#342818"/><rect x="148" y="22" width="24" height="61" rx="1" fill="#3e3025"/><rect x="182" y="28" width="18" height="55" rx="1" fill="#302615"/><path d="M0 92 Q60 85 120 90 Q180 95 240 87 L240 180 L0 180 Z" fill="#140e08" opacity="0.85"/></svg><div class="hotel-badge">Heritage</div><div class="hotel-wishlist" onclick="toggleWish(this,event)"><i class="ti ti-heart"></i></div></div><div class="hotel-row-body"><div><p class="hotel-location">Rajasthan, India</p><h3 class="hotel-name">Haveli Amber Palace</h3><div class="hotel-meta"><span class="hotel-stars">★★★★★</span><span class="hotel-rating">9.0 · Excellent</span></div><p class="hotel-desc">A maharaja's 18th-century palace on the edge of the Thar desert, restored with hand-carved sandstone, frescoed ceilings, and a rooftop that commands a sea of dunes.</p></div><div class="hotel-amenity-strip"><span class="amenity-pill"><i class="ti ti-pool"></i> Pool</span><span class="amenity-pill"><i class="ti ti-horse"></i> Camel rides</span><span class="amenity-pill"><i class="ti ti-tools-kitchen-2"></i> Rajasthani cuisine</span></div></div><div class="hotel-row-price"><div><p class="hotel-price-from">From</p><p class="hotel-price-big">$195</p><p class="hotel-price-night">/ night</p></div><div style="display:flex;flex-direction:column;gap:6px;width:100%;"><button class="btn-book" onclick="openBooking('Haveli Amber Palace','Rajasthan, India',195)">Book now</button><button class="btn-details" onclick="openBooking('Haveli Amber Palace','Rajasthan, India',195)">Details <i class="ti ti-arrow-right"></i></button></div></div></div>
+
+        <div class="hotel-row"><div class="hotel-row-img"><svg width="100%" height="100%" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="240" height="180" fill="#101418"/><rect x="0" y="95" width="240" height="85" fill="#0a0e12"/><rect x="0" y="40" width="240" height="60" fill="#14202a"/><rect x="10" y="10" width="220" height="90" rx="1" fill="#1a2838" opacity="0.7"/><rect x="20" y="18" width="30" height="70" rx="1" fill="#20304a"/><rect x="60" y="14" width="25" height="74" rx="1" fill="#1c2c40"/><rect x="95" y="20" width="35" height="68" rx="1" fill="#243848"/><rect x="140" y="16" width="28" height="72" rx="1" fill="#1e3042"/><rect x="178" y="22" width="30" height="66" rx="1" fill="#223040"/><ellipse cx="120" cy="96" rx="100" ry="6" fill="#1a2838" opacity="0.4"/><line x1="0" y1="95" x2="240" y2="95" stroke="#d4af72" stroke-width="0.3" opacity="0.15"/></svg><div class="hotel-badge">Urban luxury</div><div class="hotel-wishlist" onclick="toggleWish(this,event)"><i class="ti ti-heart"></i></div></div><div class="hotel-row-body"><div><p class="hotel-location">Tokyo, Japan</p><h3 class="hotel-name">The Kumo Penthouse Club</h3><div class="hotel-meta"><span class="hotel-stars">★★★★★</span><span class="hotel-rating">9.5 · Outstanding</span></div><p class="hotel-desc">Occupying the top 12 floors of a neo-brutalist tower in Shibuya, each suite is designed by a different Japanese architect. The bar on floor 42 is strictly members — until sunset.</p></div><div class="hotel-amenity-strip"><span class="amenity-pill"><i class="ti ti-building-skyscraper"></i> City view</span><span class="amenity-pill"><i class="ti ti-pool"></i> Sky pool</span><span class="amenity-pill"><i class="ti ti-spa"></i> Wellness</span></div></div><div class="hotel-row-price"><div><p class="hotel-price-from">From</p><p class="hotel-price-big">$450</p><p class="hotel-price-night">/ night</p></div><div style="display:flex;flex-direction:column;gap:6px;width:100%;"><button class="btn-book" onclick="openBooking('The Kumo Penthouse Club','Tokyo, Japan',450)">Book now</button><button class="btn-details" onclick="openBooking('The Kumo Penthouse Club','Tokyo, Japan',450)">Details <i class="ti ti-arrow-right"></i></button></div></div></div>
+      </div>
+      <div class="pagination" id="pagination">
+        <button class="page-btn" onclick="changePage(-1)"><i class="ti ti-chevron-left"></i></button>
+        <button class="page-btn active" onclick="setPage(this,1)">1</button>
+        <button class="page-btn" onclick="setPage(this,2)">2</button>
+        <button class="page-btn" onclick="setPage(this,3)">3</button>
+        <button class="page-btn" onclick="setPage(this,4)">4</button>
+        <button class="page-btn" style="color:var(--hint);border-color:transparent;">…</button>
+        <button class="page-btn" onclick="setPage(this,31)">31</button>
+        <button class="page-btn" onclick="changePage(1)"><i class="ti ti-chevron-right"></i></button>
+      </div>
+    </main>
+  </div>
+  <div class="divider"></div>
+  <footer class="footer"><div class="footer-logo" onclick="showPage('index')">Velour</div><ul class="footer-links"><li><a>Privacy</a></li><li><a>Terms</a></li><li><a>Careers</a></li><li><a>Press</a></li></ul><p class="footer-copy">© 2026 Velour Travel Ltd.</p></footer>
+</div>
+
+<!-- ════════════════════════════════════════════
+     DESTINATIONS PAGE
+════════════════════════════════════════════ -->
+<div class="page" id="page-destinations">
+  <div class="page-hero" style="position:relative;">
+    <div class="hg"></div>
+    <div class="page-hero-inner">
+      <div><p class="eyebrow">120+ destinations worldwide</p><h1 class="page-title">Explore the<br><em>world</em> with us</h1></div>
+      <p class="page-sub">From the mist-covered temples of Asia to the sunlit piazzas of Europe — find the destination that calls to you.</p>
+    </div>
+  </div>
+  <div class="dest-search-row">
+    <i class="ti ti-search" style="font-size:16px;color:var(--hint);flex-shrink:0;"></i>
+    <input class="srch-inp" type="text" placeholder="Search a destination…" id="destSearch" oninput="filterDests()">
+    <div class="dsep"></div>
+    <button class="reg-pill on" data-reg="all" onclick="setRegion(this)">All regions</button>
+    <button class="reg-pill" data-reg="europe" onclick="setRegion(this)">Europe</button>
+    <button class="reg-pill" data-reg="asia" onclick="setRegion(this)">Asia</button>
+    <button class="reg-pill" data-reg="africa" onclick="setRegion(this)">Africa</button>
+    <button class="reg-pill" data-reg="americas" onclick="setRegion(this)">Americas</button>
+    <button class="reg-pill" data-reg="oceania" onclick="setRegion(this)">Oceania</button>
+  </div>
+  <section class="section">
+    <div class="sec-header"><div><p class="sec-eyebrow">Editor's spotlight</p><h2 class="sec-title" style="margin-bottom:0;">Must-visit destinations</h2></div></div>
+    <div class="feat-hero-grid">
+      <div class="dc" style="height:300px;" onclick="navToDestination('Kyoto')">
+        <div class="dci-w"><div class="dci"><svg width="100%" height="100%" viewBox="0 0 460 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="460" height="300" fill="#0f1a10"/><rect x="0" y="160" width="460" height="140" fill="#0a1208"/><rect x="15" y="30" width="430" height="135" fill="#1a2e1c"/><rect x="30" y="42" width="16" height="88" rx="8" fill="#22381e"/><rect x="78" y="35" width="20" height="95" rx="10" fill="#28402a"/><rect x="138" y="30" width="24" height="100" rx="12" fill="#2e4830"/><rect x="206" y="28" width="26" height="102" rx="13" fill="#324838"/><rect x="280" y="34" width="22" height="96" rx="11" fill="#2c4635"/><rect x="345" y="32" width="25" height="98" rx="12" fill="#2e4a38"/><rect x="165" y="130" width="130" height="90" rx="2" fill="#172618"/><path d="M165 130 L230 100 L295 130 Z" fill="#1c3020"/><rect x="195" y="148" width="70" height="72" rx="1" fill="#12201a"/></svg></div></div>
+        <div class="dov"><div><p class="dcn">Japan</p><p class="dct">Kyoto</p><p class="dcc">73 hotels · 28 experiences</p></div></div>
+        <span class="dbadge">Trending</span>
+      </div>
+      <div class="dc" style="height:300px;" onclick="navToDestination('Amalfi Coast')">
+        <div class="dci-w"><div class="dci"><svg width="100%" height="100%" viewBox="0 0 260 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="300" fill="#0e1828"/><rect x="0" y="170" width="260" height="130" fill="#080f1e"/><rect x="0" y="30" width="260" height="65" fill="#1a2d48"/><rect x="20" y="50" width="55" height="120" rx="2" fill="#1e3050"/><rect x="85" y="65" width="45" height="105" rx="2" fill="#1a2c4a"/><rect x="140" y="55" width="50" height="115" rx="2" fill="#1e3258"/><rect x="200" y="70" width="40" height="100" rx="2" fill="#1a2e50"/><path d="M0 185 Q65 175 130 182 Q195 189 260 178 L260 300 L0 300 Z" fill="#0a1525" opacity="0.85"/></svg></div></div>
+        <div class="dov"><div><p class="dcn">Italy</p><p class="dct">Amalfi Coast</p><p class="dcc">38 hotels · 16 experiences</p></div></div>
+        <span class="dbadge">Exclusive</span>
+      </div>
+    </div>
+    <div class="feat-hero-sub">
+      <div class="dc" style="height:180px;" onclick="navToDestination('Marrakech')"><div class="dci-w"><div class="dci"><svg width="100%" height="100%" viewBox="0 0 200 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="180" fill="#1a100a"/><rect x="40" y="20" width="120" height="85" rx="2" fill="#2a1d14"/><rect x="55" y="5" width="90" height="22" rx="1" fill="#322418"/><rect x="25" y="55" width="35" height="50" rx="1" fill="#241810"/><rect x="140" y="50" width="35" height="55" rx="1" fill="#241810"/></svg></div></div><div class="dov" style="padding:.9rem;"><div><p class="dcn">Morocco</p><p class="dct" style="font-size:17px;">Marrakech</p><p class="dcc">41 hotels</p></div></div></div>
+      <div class="dc" style="height:180px;" onclick="navToDestination('Santorini')"><div class="dci-w"><div class="dci"><svg width="100%" height="100%" viewBox="0 0 200 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="180" fill="#12182a"/><rect x="20" y="18" width="40" height="78" rx="20" fill="#1e3558"/><rect x="70" y="28" width="32" height="65" rx="16" fill="#192c50"/><rect x="112" y="14" width="44" height="82" rx="22" fill="#223860"/><rect x="162" y="24" width="30" height="72" rx="15" fill="#1e3258"/><rect x="0" y="100" width="200" height="8" fill="#132038"/><ellipse cx="100" cy="103" rx="90" ry="5" fill="#1a2d50" opacity="0.6"/></svg></div></div><div class="dov" style="padding:.9rem;"><div><p class="dcn">Greece</p><p class="dct" style="font-size:17px;">Santorini</p><p class="dcc">58 hotels</p></div></div></div>
+      <div class="dc" style="height:180px;" onclick="navToDestination('Bali')"><div class="dci-w"><div class="dci"><svg width="100%" height="100%" viewBox="0 0 200 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="180" fill="#0f1a10"/><rect x="20" y="15" width="160" height="90" fill="#1a2e1c"/><rect x="35" y="28" width="10" height="62" rx="5" fill="#22381e"/><rect x="72" y="20" width="12" height="70" rx="6" fill="#28402a"/><rect x="110" y="15" width="14" height="75" rx="7" fill="#2e4830"/><rect x="150" y="18" width="13" height="72" rx="6" fill="#324838"/><rect x="80" y="100" width="40" height="55" rx="1" fill="#152018"/><path d="M80 100 L100 82 L120 100 Z" fill="#1a2820"/></svg></div></div><div class="dov" style="padding:.9rem;"><div><p class="dcn">Indonesia</p><p class="dct" style="font-size:17px;">Bali</p><p class="dcc">52 hotels</p></div></div></div>
+    </div>
+  </section>
+  <div class="divider"></div>
+  <section class="section" style="padding-top:2rem;">
+    <div class="sec-header"><div><p class="sec-eyebrow">Full collection</p><h2 class="sec-title" style="margin-bottom:0;">All destinations</h2></div><button class="btn-viewall" onclick="showToast('Sorted A–Z')">Sort A–Z <i class="ti ti-arrow-right"></i></button></div>
+    <div class="list-grid" id="destListGrid">
+      <div class="lc" data-reg="europe" data-name="paris" onclick="navToDestination('Paris')"><div class="lt"><svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#1a1228"/><rect x="30" y="20" width="140" height="50" fill="#2a2040"/><rect x="50" y="28" width="20" height="35" rx="1" fill="#332850"/><rect x="80" y="25" width="25" height="38" rx="1" fill="#362c58"/><rect x="115" y="30" width="18" height="33" rx="1" fill="#2e2448"/><rect x="143" y="26" width="20" height="37" rx="1" fill="#332850"/><rect x="87" y="8" width="11" height="20" rx="1" fill="#3d3060"/></svg></div><div class="lb"><p class="lbn">France · Europe</p><p class="lbt">Paris</p><div class="lbm"><i class="ti ti-building"></i>142 hotels<span style="margin-left:8px;"><i class="ti ti-sparkles"></i>54 exp.</span></div></div></div>
+      <div class="lc" data-reg="asia" data-name="tokyo" onclick="navToDestination('Tokyo')"><div class="lt"><svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#0e141e"/><rect x="10" y="15" width="180" height="55" fill="#152030"/><rect x="15" y="22" width="18" height="42" rx="1" fill="#1e3040"/><rect x="62" y="10" width="22" height="54" rx="1" fill="#223848"/><rect x="118" y="8" width="25" height="56" rx="1" fill="#263e50"/><rect x="178" y="12" width="14" height="52" rx="1" fill="#1c3244"/></svg></div><div class="lb"><p class="lbn">Japan · Asia</p><p class="lbt">Tokyo</p><div class="lbm"><i class="ti ti-building"></i>98 hotels<span style="margin-left:8px;"><i class="ti ti-sparkles"></i>41 exp.</span></div></div></div>
+      <div class="lc" data-reg="americas" data-name="new york" onclick="navToDestination('New York')"><div class="lt"><svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#0a0c14"/><rect x="8" y="15" width="12" height="58" rx="1" fill="#151c2c"/><rect x="26" y="8" width="15" height="65" rx="1" fill="#1a2238"/><rect x="67" y="5" width="18" height="68" rx="1" fill="#1e2a40"/><rect x="114" y="0" width="20" height="73" rx="1" fill="#223045"/><rect x="164" y="8" width="18" height="65" rx="1" fill="#1e2c42"/><circle cx="75" cy="10" r="3" fill="#d4af72" opacity="0.25"/></svg></div><div class="lb"><p class="lbn">USA · Americas</p><p class="lbt">New York</p><div class="lbm"><i class="ti ti-building"></i>115 hotels<span style="margin-left:8px;"><i class="ti ti-sparkles"></i>37 exp.</span></div></div></div>
+      <div class="lc" data-reg="africa" data-name="cape town" onclick="navToDestination('Cape Town')"><div class="lt"><svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#101820"/><rect x="40" y="10" width="120" height="58" rx="2" fill="#1a2c40"/><path d="M40 10 L100 -5 L160 10 Z" fill="#1e3248"/><rect x="55" y="42" width="15" height="28" rx="1" fill="#1a2a3c"/><rect x="110" y="42" width="15" height="28" rx="1" fill="#1a2a3c"/></svg></div><div class="lb"><p class="lbn">South Africa · Africa</p><p class="lbt">Cape Town</p><div class="lbm"><i class="ti ti-building"></i>67 hotels<span style="margin-left:8px;"><i class="ti ti-sparkles"></i>22 exp.</span></div></div></div>
+      <div class="lc" data-reg="europe" data-name="barcelona" onclick="navToDestination('Barcelona')"><div class="lt"><svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#141018"/><rect x="20" y="20" width="160" height="52" fill="#201a2c"/><rect x="30" y="28" width="22" height="38" rx="1" fill="#2a2238"/><rect x="86" y="20" width="28" height="46" rx="1" fill="#2e2840"/><rect x="152" y="22" width="22" height="44" rx="1" fill="#2c2640"/></svg></div><div class="lb"><p class="lbn">Spain · Europe</p><p class="lbt">Barcelona</p><div class="lbm"><i class="ti ti-building"></i>89 hotels<span style="margin-left:8px;"><i class="ti ti-sparkles"></i>33 exp.</span></div></div></div>
+      <div class="lc" data-reg="oceania" data-name="sydney" onclick="navToDestination('Sydney')"><div class="lt"><svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#0e1620"/><rect x="0" y="38" width="200" height="35" fill="#122030"/><rect x="60" y="15" width="80" height="55" rx="40" fill="#1a2e48" opacity="0.7"/><rect x="20" y="55" width="35" height="18" rx="1" fill="#162438"/><rect x="145" y="52" width="35" height="20" rx="1" fill="#162438"/></svg></div><div class="lb"><p class="lbn">Australia · Oceania</p><p class="lbt">Sydney</p><div class="lbm"><i class="ti ti-building"></i>54 hotels<span style="margin-left:8px;"><i class="ti ti-sparkles"></i>19 exp.</span></div></div></div>
+      <div class="lc" data-reg="americas" data-name="buenos aires" onclick="navToDestination('Buenos Aires')"><div class="lt"><svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#12101e"/><rect x="10" y="20" width="180" height="48" fill="#1e1a30"/><rect x="18" y="28" width="15" height="35" rx="1" fill="#28223e"/><rect x="66" y="20" width="20" height="43" rx="1" fill="#302a48"/><rect x="120" y="18" width="22" height="45" rx="1" fill="#34304e"/><rect x="176" y="26" width="14" height="37" rx="1" fill="#2a2440"/></svg></div><div class="lb"><p class="lbn">Argentina · Americas</p><p class="lbt">Buenos Aires</p><div class="lbm"><i class="ti ti-building"></i>43 hotels<span style="margin-left:8px;"><i class="ti ti-sparkles"></i>18 exp.</span></div></div></div>
+      <div class="lc" data-reg="asia" data-name="dubai" onclick="navToDestination('Dubai')"><div class="lt"><svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#16100a"/><rect x="10" y="8" width="8" height="60" rx="1" fill="#2a1e0c"/><rect x="65" y="5" width="18" height="63" rx="1" fill="#382a14"/><rect x="115" y="0" width="22" height="68" rx="1" fill="#3e2e18"/><rect x="172" y="15" width="18" height="53" rx="1" fill="#322614"/><rect x="119" y="0" width="14" height="8" rx="1" fill="#4a361e"/></svg></div><div class="lb"><p class="lbn">UAE · Asia</p><p class="lbt">Dubai</p><div class="lbm"><i class="ti ti-building"></i>76 hotels<span style="margin-left:8px;"><i class="ti ti-sparkles"></i>29 exp.</span></div></div></div>
+    </div>
+  </section>
+  <div class="stats-row">
+    <div class="stat"><p class="stn">120+</p><p class="stl">Destinations worldwide</p></div>
+    <div class="stat"><p class="stn">4,800+</p><p class="stl">Curated hotels</p></div>
+    <div class="stat"><p class="stn">900+</p><p class="stl">Unique experiences</p></div>
+    <div class="stat"><p class="stn">62</p><p class="stl">Countries covered</p></div>
+  </div>
+  <div class="cta-band" style="margin-top:2rem;">
+    <div class="hg" style="border-radius:3px;"></div>
+    <div class="cta-content"><h2 class="cta-title">Your destination isn't listed?<br>Tell us where you want to <em>go</em>.</h2><p class="cta-sub">Our team is constantly adding new destinations — let us know what's on your list.</p></div>
+    <button class="btn-cta" onclick="openModal('signinModal')">Request a destination ↗</button>
+  </div>
+  <footer class="footer"><div class="footer-logo" onclick="showPage('index')">Velour</div><ul class="footer-links"><li><a>Privacy</a></li><li><a>Terms</a></li><li><a>Careers</a></li><li><a>Press</a></li></ul><p class="footer-copy">© 2026 Velour Travel Ltd.</p></footer>
+</div>
+
+<!-- ════════════════════════════════════════════
+     OFFERS PAGE
+════════════════════════════════════════════ -->
+<div class="page" id="page-offers">
+  <div class="page-hero" style="position:relative;">
+    <div class="hg"></div>
+    <div class="page-hero-inner">
+      <div><p class="eyebrow">Limited-time deals</p><h1 class="page-title">Exceptional stays<br>at <em>exceptional</em> prices</h1></div>
+      <p class="page-sub">Hand-selected offers, early-access rates, and member exclusives — refreshed every week.</p>
+    </div>
+  </div>
+  <div class="countdown-bar">
+    <span class="cd-label"><i class="ti ti-clock" style="font-size:14px;vertical-align:-2px;margin-right:4px;"></i>Flash sale ends in</span>
+    <div class="cd-timer">
+      <div class="cd-unit"><span class="cd-num" id="cd-h">08</span><span class="cd-lbl">hrs</span></div>
+      <span class="cd-sep">:</span>
+      <div class="cd-unit"><span class="cd-num" id="cd-m">34</span><span class="cd-lbl">min</span></div>
+      <span class="cd-sep">:</span>
+      <div class="cd-unit"><span class="cd-num" id="cd-s">17</span><span class="cd-lbl">sec</span></div>
+    </div>
+    <div style="width:4px;height:4px;border-radius:50%;background:var(--gold);opacity:.3;flex-shrink:0;"></div>
+    <span style="font-size:12px;font-weight:300;color:var(--muted);">Up to 40% off selected properties</span>
+  </div>
+  <div class="offers-filter-bar">
+    <button class="fp on" data-type="all" onclick="setOfferFilter(this)">All offers</button>
+    <button class="fp" data-type="flash" onclick="setOfferFilter(this)">Flash deals</button>
+    <button class="fp" data-type="early" onclick="setOfferFilter(this)">Early booking</button>
+    <button class="fp" data-type="last" onclick="setOfferFilter(this)">Last minute</button>
+    <button class="fp" data-type="member" onclick="setOfferFilter(this)">Members only</button>
+    <button class="fp" data-type="honeymoon" onclick="setOfferFilter(this)">Honeymoon</button>
+    <button class="fp" data-type="family" onclick="setOfferFilter(this)">Family</button>
+  </div>
+  <section class="section">
+    <p class="sec-eyebrow">Deal of the week</p>
+    <div class="hero-offer" style="height:300px;" onclick="openBooking('The Grand Bleu','Nice, France',408)">
+      <div class="doi-w"><div class="doi"><svg width="100%" height="100%" viewBox="0 0 680 280" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="680" height="280" fill="#0f1a20"/><rect x="0" y="150" width="680" height="130" fill="#080f18"/><rect x="0" y="70" width="680" height="85" fill="#122030"/><rect x="0" y="20" width="680" height="55" fill="#1a2d48"/><rect x="40" y="30" width="60" height="120" rx="2" fill="#1e3050"/><rect x="115" y="45" width="50" height="105" rx="2" fill="#1a2c4a"/><rect x="180" y="35" width="65" height="115" rx="2" fill="#1e3258"/><rect x="260" y="50" width="55" height="100" rx="2" fill="#1a2e50"/><rect x="330" y="30" width="70" height="120" rx="2" fill="#223560"/><rect x="418" y="42" width="55" height="108" rx="2" fill="#1e3055"/><rect x="490" y="25" width="65" height="125" rx="2" fill="#24386a"/><rect x="572" y="38" width="50" height="112" rx="2" fill="#1e3258"/><rect x="640" y="30" width="40" height="120" rx="2" fill="#1a2d4e"/><path d="M0 165 Q170 150 340 160 Q510 170 680 155 L680 280 L0 280 Z" fill="#0a1525" opacity="0.85"/></svg></div></div>
+      <div class="offers-dov">
+        <div class="hero-offer-content">
+          <div class="offer-tag-big"><i class="ti ti-bolt" style="font-size:13px;"></i>Flash sale · 40% off</div>
+          <h2 class="hero-offer-title">The Grand Bleu,<br><em>Côte d'Azur</em></h2>
+          <p class="hero-offer-sub">5-night minimum · Breakfast included · Free airport transfer</p>
+          <div class="hero-offer-meta">
+            <span class="hom"><i class="ti ti-calendar"></i>Jun 1 – Aug 31</span>
+            <span class="hom"><i class="ti ti-star"></i>9.6 · Outstanding</span>
+            <span class="hom"><i class="ti ti-map-pin"></i>Nice, France</span>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:1.25rem;">
+            <span style="font-size:16px;color:var(--hint);font-weight:300;text-decoration:line-through;">$680</span>
+            <span style="font-family:var(--serif);font-size:32px;font-weight:300;color:var(--gold);">$408</span>
+            <span style="font-size:12px;color:var(--muted);font-weight:300;">/ night</span>
+          </div>
+          <button class="btn-cta" onclick="openBooking('The Grand Bleu','Nice, France',408);event.stopPropagation();">Claim this offer ↗</button>
+        </div>
+      </div>
+      <div class="savings-badge"><span class="sb-pct">40%</span><span class="sb-lbl">savings</span></div>
+    </div>
+  </section>
+  <section class="section" style="padding-top:0;">
+    <div class="sec-header"><div><p class="sec-eyebrow">Current promotions</p><h2 class="sec-title" style="margin-bottom:0;">All active offers</h2></div><button class="btn-viewall" onclick="showToast('Sorted by ending soonest')">Ending soonest <i class="ti ti-arrow-right"></i></button></div>
+    <div class="offers-grid" id="offersGrid">
+      <div class="oc" data-type="last"><div class="oc-thumb"><svg viewBox="0 0 260 140" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="140" fill="#1a1228"/><rect x="0" y="78" width="260" height="62" fill="#0f0c1e"/><rect x="30" y="18" width="200" height="65" fill="#241a38"/><rect x="50" y="26" width="22" height="48" rx="1" fill="#2e2248"/><rect x="110" y="16" width="26" height="58" rx="1" fill="#342a52"/><rect x="175" y="18" width="24" height="56" rx="1" fill="#382c58"/></svg><span class="oc-badge">Last minute</span><span class="oc-save">-25%</span></div><div class="oc-body"><p class="oc-loc"><i class="ti ti-map-pin" style="font-size:11px;vertical-align:-1px;"></i> Paris, France</p><h3 class="oc-title">Hôtel de la Lumière</h3><p class="oc-desc">Book 48 hrs in advance, stay any 3 nights in June. Champagne welcome included.</p><div class="oc-footer"><div class="oc-price"><span class="oc-orig">$380</span><span class="oc-now">$285</span><span class="oc-night">/ night</span></div><button class="btn-view" onclick="openBooking('Hôtel de la Lumière','Paris, France',285)">Book <i class="ti ti-arrow-right"></i></button></div></div></div>
+      <div class="oc" data-type="early"><div class="oc-thumb"><svg viewBox="0 0 260 140" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="140" fill="#0f1a10"/><rect x="0" y="80" width="260" height="60" fill="#0a1208"/><rect x="15" y="12" width="230" height="72" fill="#1a2e1c"/><rect x="30" y="22" width="13" height="55" rx="6" fill="#223820"/><rect x="72" y="18" width="15" height="59" rx="7" fill="#28402a"/><rect x="120" y="14" width="17" height="63" rx="8" fill="#2c4830"/><rect x="175" y="12" width="18" height="65" rx="9" fill="#304838"/><rect x="105" y="84" width="50" height="35" rx="1" fill="#152018"/><path d="M105 84 L130 65 L155 84 Z" fill="#1a2820"/></svg><span class="oc-badge">Early booking</span><span class="oc-save">-30%</span></div><div class="oc-body"><p class="oc-loc"><i class="ti ti-map-pin" style="font-size:11px;vertical-align:-1px;"></i> Kyoto, Japan</p><h3 class="oc-title">Ryokan Midori No Yuki</h3><p class="oc-desc">Book 60 days ahead for autumn season. Includes private tea ceremony for two.</p><div class="oc-footer"><div class="oc-price"><span class="oc-orig">$290</span><span class="oc-now">$203</span><span class="oc-night">/ night</span></div><button class="btn-view" onclick="openBooking('Ryokan Midori No Yuki','Kyoto, Japan',203)">Book <i class="ti ti-arrow-right"></i></button></div></div></div>
+      <div class="oc" data-type="member"><div class="oc-thumb"><svg viewBox="0 0 260 140" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="140" fill="#12182a"/><rect x="0" y="78" width="260" height="62" fill="#0a1020"/><rect x="18" y="14" width="50" height="67" rx="25" fill="#1e3558"/><rect x="78" y="22" width="40" height="57" rx="20" fill="#192c50"/><rect x="128" y="12" width="55" height="70" rx="27" fill="#223860"/><rect x="193" y="20" width="42" height="60" rx="21" fill="#1e3258"/><ellipse cx="130" cy="85" rx="120" ry="6" fill="#1a2d50" opacity="0.6"/></svg><span class="oc-badge">Members only</span><span class="oc-save">-35%</span></div><div class="oc-body"><p class="oc-loc"><i class="ti ti-map-pin" style="font-size:11px;vertical-align:-1px;"></i> Santorini, Greece</p><h3 class="oc-title">Aegean Blue Retreat</h3><p class="oc-desc">Exclusive member rate. Includes infinity pool access and sunset dinner for two.</p><div class="oc-footer"><div class="oc-price"><span class="oc-orig">$520</span><span class="oc-now">$338</span><span class="oc-night">/ night</span></div><button class="btn-view" onclick="openBooking('Aegean Blue Retreat','Santorini, Greece',338)">Join &amp; book <i class="ti ti-arrow-right"></i></button></div></div></div>
+      <div class="oc" data-type="honeymoon"><div class="oc-thumb"><svg viewBox="0 0 260 140" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="140" fill="#180a0a"/><rect x="0" y="78" width="260" height="62" fill="#100606"/><rect x="20" y="15" width="220" height="68" rx="2" fill="#2a1214"/><rect x="50" y="34" width="25" height="36" rx="1" fill="#3c1c20"/><rect x="115" y="26" width="30" height="44" rx="1" fill="#402028"/><rect x="187" y="25" width="25" height="45" rx="1" fill="#3e2025"/></svg><span class="oc-badge">Honeymoon</span><span class="oc-save">-20%</span></div><div class="oc-body"><p class="oc-loc"><i class="ti ti-map-pin" style="font-size:11px;vertical-align:-1px;"></i> Maldives</p><h3 class="oc-title">Velaa Private Island</h3><p class="oc-desc">7-night minimum. Overwater villa, couples spa, private butler. Roses on arrival.</p><div class="oc-footer"><div class="oc-price"><span class="oc-orig">$1,200</span><span class="oc-now">$960</span><span class="oc-night">/ night</span></div><button class="btn-view" onclick="openBooking('Velaa Private Island','Maldives',960)">Book <i class="ti ti-arrow-right"></i></button></div></div></div>
+      <div class="oc" data-type="flash"><div class="oc-thumb"><svg viewBox="0 0 260 140" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="140" fill="#16100a"/><rect x="0" y="75" width="260" height="65" fill="#0e0c06"/><rect x="12" y="8" width="10" height="60" rx="1" fill="#2a1e0c"/><rect x="76" y="4" width="20" height="72" rx="1" fill="#382a14"/><rect x="130" y="0" width="24" height="76" rx="1" fill="#3e2e18"/><rect x="192" y="6" width="20" height="70" rx="1" fill="#322614"/><rect x="246" y="8" width="12" height="68" rx="1" fill="#261c0c"/><rect x="133" y="0" width="16" height="10" rx="1" fill="#4a361e"/></svg><span class="oc-badge">Flash deal</span><span class="oc-save">-40%</span></div><div class="oc-body"><p class="oc-loc"><i class="ti ti-map-pin" style="font-size:11px;vertical-align:-1px;"></i> Dubai, UAE</p><h3 class="oc-title">One&amp;Only Royal Mirage</h3><p class="oc-desc">48-hr flash offer. Breakfast + resort credit. Valid for stays in July only.</p><div class="oc-footer"><div class="oc-price"><span class="oc-orig">$650</span><span class="oc-now">$390</span><span class="oc-night">/ night</span></div><button class="btn-view" onclick="openBooking('One&Only Royal Mirage','Dubai, UAE',390)">Book <i class="ti ti-arrow-right"></i></button></div></div></div>
+      <div class="oc" data-type="family"><div class="oc-thumb"><svg viewBox="0 0 260 140" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="140" fill="#0e1818"/><rect x="0" y="78" width="260" height="62" fill="#080f0f"/><rect x="15" y="14" width="230" height="70" fill="#162e2e"/><rect x="25" y="24" width="15" height="52" rx="7" fill="#1e3c3c"/><rect x="70" y="20" width="18" height="56" rx="9" fill="#224242"/><rect x="122" y="16" width="20" height="60" rx="10" fill="#284848"/><rect x="182" y="14" width="22" height="62" rx="11" fill="#2c4e4a"/></svg><span class="oc-badge">Family</span><span class="oc-save">-15%</span></div><div class="oc-body"><p class="oc-loc"><i class="ti ti-map-pin" style="font-size:11px;vertical-align:-1px;"></i> Bali, Indonesia</p><h3 class="oc-title">Alila Villas Uluwatu</h3><p class="oc-desc">Kids stay free. 3-bedroom villa, nanny service, private pool. Min. 5 nights.</p><div class="oc-footer"><div class="oc-price"><span class="oc-orig">$820</span><span class="oc-now">$697</span><span class="oc-night">/ night</span></div><button class="btn-view" onclick="openBooking('Alila Villas Uluwatu','Bali, Indonesia',697)">Book <i class="ti ti-arrow-right"></i></button></div></div></div>
+    </div>
+  </section>
+  <div class="divider"></div>
+  <section class="section" style="padding-top:2rem;padding-bottom:0;">
+    <p class="sec-eyebrow">Velour membership</p>
+    <h2 class="sec-title" style="margin-bottom:1rem;">Unlock more with every stay</h2>
+    <div class="loyalty-band">
+      <div class="lb-top">
+        <div class="lb-tier"><p class="lb-tier-name">Entry</p><p class="lb-tier-title silver">Silver</p><ul class="lb-perks"><li><i class="ti ti-check"></i>5% member rate</li><li><i class="ti ti-check"></i>Priority support</li><li><i class="ti ti-check"></i>Early access to offers</li></ul></div>
+        <div class="lb-tier"><p class="lb-tier-name">Most popular</p><p class="lb-tier-title gold">Gold</p><ul class="lb-perks"><li><i class="ti ti-check"></i>15% member rate</li><li><i class="ti ti-check"></i>Free room upgrades</li><li><i class="ti ti-check"></i>Late checkout guaranteed</li><li><i class="ti ti-check"></i>Welcome amenity</li></ul></div>
+        <div class="lb-tier"><p class="lb-tier-name">Elite</p><p class="lb-tier-title platinum">Platinum</p><ul class="lb-perks"><li><i class="ti ti-check"></i>25% member rate</li><li><i class="ti ti-check"></i>Suite upgrades on arrival</li><li><i class="ti ti-check"></i>Dedicated concierge</li><li><i class="ti ti-check"></i>Complimentary experiences</li><li><i class="ti ti-check"></i>Annual gift</li></ul></div>
+      </div>
+      <div class="lb-bottom"><p class="lb-bottom-text">Join free today — your first stay earns you <strong>Silver</strong> status instantly.</p><button class="btn-cta" onclick="openModal('signinModal')">Join Velour membership ↗</button></div>
+    </div>
+  </section>
+  <section class="section">
+    <p class="sec-eyebrow">Promo codes</p>
+    <h2 class="sec-title" style="margin-bottom:1rem;">Use a code at checkout</h2>
+    <div class="promo-strip">
+      <div class="pc"><i class="ti ti-gift pc-icon"></i><div><p class="pc-title">New member welcome</p><p class="pc-desc">10% off your first booking when you create a free Velour account. No minimum spend.</p><span class="pc-code" onclick="copyCode('WELCOME10')">WELCOME10</span></div></div>
+      <div class="pc"><i class="ti ti-sun pc-icon"></i><div><p class="pc-title">Summer escape</p><p class="pc-desc">Extra 12% off any booking of 5 nights or more between June and September 2026.</p><span class="pc-code" onclick="copyCode('SUMMER12')">SUMMER12</span></div></div>
+      <div class="pc"><i class="ti ti-heart pc-icon"></i><div><p class="pc-title">Honeymoon special</p><p class="pc-desc">15% off all honeymoon packages. Applies to any property in our romance collection.</p><span class="pc-code" onclick="copyCode('ROMANCE15')">ROMANCE15</span></div></div>
+      <div class="pc"><i class="ti ti-building pc-icon"></i><div><p class="pc-title">Extended stay</p><p class="pc-desc">Book 7 nights or more at any Velour property and receive 20% off the total rate.</p><span class="pc-code" onclick="copyCode('STAY7SAVE')">STAY7SAVE</span></div></div>
+    </div>
+  </section>
+  <footer class="footer"><div class="footer-logo" onclick="showPage('index')">Velour</div><ul class="footer-links"><li><a>Privacy</a></li><li><a>Terms</a></li><li><a>Careers</a></li><li><a>Press</a></li></ul><p class="footer-copy">© 2026 Velour Travel Ltd.</p></footer>
+</div>
+
+<script>
+// ── PAGE NAVIGATION ──
+let currentPage = 'index';
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  const navEl = document.getElementById('nav-' + name);
+  if (navEl) navEl.classList.add('active');
+  currentPage = name;
+  window.scrollTo(0,0);
+}
+
+// ── MODALS ──
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'bookingModal') {
+    document.getElementById('bookingForm').style.display = '';
+    document.getElementById('bookingSuccess').style.display = 'none';
+  }
+}
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) closeModal(o.id); });
+});
+
+// ── BOOKING ──
+let currentPrice = 380;
+function openBooking(name, location, price) {
+  currentPrice = price;
+  document.getElementById('bookModalTitle').textContent = name;
+  document.getElementById('bsSummaryHotel').textContent = name + ' — ' + location;
+  const checkin = document.getElementById('heroCheckin').value || document.getElementById('hotelCheckin').value;
+  const checkout = document.getElementById('heroCheckout').value || document.getElementById('hotelCheckout').value;
+  let nights = 4, dateStr = 'Jun 12 – Jun 16 · 4 nights · 2 guests';
+  if (checkin && checkout) {
+    const d1 = new Date(checkin), d2 = new Date(checkout);
+    nights = Math.max(1, Math.round((d2-d1)/(86400000)));
+    const fmt = d => d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    dateStr = fmt(d1) + ' – ' + fmt(d2) + ' · ' + nights + ' night' + (nights>1?'s':'') + ' · 2 guests';
+    document.getElementById('bookCheckin').value = checkin;
+    document.getElementById('bookCheckout').value = checkout;
+  }
+  document.getElementById('bsSummaryDates').textContent = dateStr;
+  document.getElementById('bsTotal').textContent = '$' + (price * nights).toLocaleString();
+  document.getElementById('bookingForm').style.display = '';
+  document.getElementById('bookingSuccess').style.display = 'none';
+  openModal('bookingModal');
+}
+function confirmBooking() {
+  const ref = Math.random().toString(36).substring(2,8).toUpperCase();
+  document.getElementById('bookRef').textContent = ref;
+  document.getElementById('bookingForm').style.display = 'none';
+  document.getElementById('bookingSuccess').style.display = 'block';
+}
+
+// ── SIGN-IN ──
+function handleSignIn() {
+  closeModal('signinModal');
+  showToast('Welcome back to Velour ✦');
+}
+
+// ── SEARCH ──
+function setSearchTab(el) {
+  document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+function doSearch() {
+  const dest = document.getElementById('heroDestInput').value;
+  const checkin = document.getElementById('heroCheckin').value;
+  const checkout = document.getElementById('heroCheckout').value;
+  if (dest) {
+    document.getElementById('hotelDestInput').value = dest;
+    if (checkin) document.getElementById('hotelCheckin').value = checkin;
+    if (checkout) document.getElementById('hotelCheckout').value = checkout;
+  }
+  showPage('hotels');
+  showToast('Searching ' + (dest || 'all destinations') + '…');
+}
+function doHotelSearch() {
+  showToast('Updating results…');
+}
+
+// ── HOTEL FILTERS ──
+function toggleChip(el) { el.classList.toggle('active'); showToast('Filter updated'); }
+function toggleStar(el) { el.classList.toggle('checked'); showToast('Star rating updated'); }
+function toggleAmenity(el) { el.classList.toggle('checked'); showToast('Amenity filter updated'); }
+function updatePrice(slider) {
+  const val = parseInt(slider.value);
+  document.getElementById('maxPrice').value = '$' + val.toLocaleString();
+  const pct = ((val-50)/(2000-50))*100;
+  slider.style.background = `linear-gradient(to right,#d4af72 ${pct}%,rgba(240,237,232,0.1) ${pct}%)`;
+}
+function removeTag(el) {
+  el.style.opacity='0'; el.style.transform='scale(0.8)'; el.style.transition='all .2s';
+  setTimeout(()=>el.remove(),200);
+  showToast('Filter removed');
+}
+
+// ── PAGINATION ──
+let curPage = 1;
+function setPage(btn, num) {
+  curPage = num;
+  document.querySelectorAll('#pagination .page-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  showToast('Page ' + num);
+  window.scrollTo({top:document.getElementById('page-hotels').offsetTop,behavior:'smooth'});
+}
+function changePage(dir) {
+  curPage = Math.max(1, Math.min(31, curPage + dir));
+  showToast('Page ' + curPage);
+}
+
+// ── WISHLIST ──
+function toggleWish(el, e) {
+  e.stopPropagation();
+  el.classList.toggle('saved');
+  showToast(el.classList.contains('saved') ? '<i class="ti ti-heart" style="color:var(--gold)"></i> Saved to wishlist' : 'Removed from wishlist');
+}
+
+// ── DESTINATIONS ──
+function navToDestination(dest) {
+  document.getElementById('hotelDestInput').value = dest;
+  showPage('hotels');
+  showToast('Showing hotels in ' + dest);
+}
+function setRegion(btn) {
+  document.querySelectorAll('.reg-pill').forEach(p => p.classList.remove('on'));
+  btn.classList.add('on');
+  const reg = btn.dataset.reg;
+  document.querySelectorAll('#destListGrid .lc').forEach(c => {
+    c.style.display = (reg === 'all' || c.dataset.reg === reg) ? '' : 'none';
+  });
+}
+function filterDests() {
+  const q = document.getElementById('destSearch').value.toLowerCase();
+  document.querySelectorAll('#destListGrid .lc').forEach(c => {
+    c.style.display = c.dataset.name.includes(q) ? '' : 'none';
+  });
+}
+
+// ── OFFERS FILTER ──
+function setOfferFilter(btn) {
+  document.querySelectorAll('.fp').forEach(p => p.classList.remove('on'));
+  btn.classList.add('on');
+  const t = btn.dataset.type;
+  document.querySelectorAll('#offersGrid .oc').forEach(c => {
+    c.style.display = (t === 'all' || c.dataset.type === t) ? '' : 'none';
+  });
+}
+
+// ── PROMO CODE COPY ──
+function copyCode(code) {
+  navigator.clipboard.writeText(code).catch(()=>{});
+  showToast('Code copied: ' + code);
+}
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').innerHTML = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+// ── COUNTDOWN ──
+let totalSecs = 8*3600+34*60+17;
+setInterval(()=>{
+  if(totalSecs<=0)return; totalSecs--;
+  const h=Math.floor(totalSecs/3600), m=Math.floor((totalSecs%3600)/60), s=totalSecs%60;
+  document.getElementById('cd-h').textContent=String(h).padStart(2,'0');
+  document.getElementById('cd-m').textContent=String(m).padStart(2,'0');
+  document.getElementById('cd-s').textContent=String(s).padStart(2,'0');
+},1000);
+
+// ── SET DEFAULT DATES ──
+const today = new Date();
+const cin = new Date(today); cin.setDate(cin.getDate()+14);
+const cout = new Date(cin); cout.setDate(cout.getDate()+4);
+const fmt = d=>d.toISOString().split('T')[0];
+['heroCheckin','hotelCheckin','bookCheckin'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=fmt(cin); });
+['heroCheckout','hotelCheckout','bookCheckout'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=fmt(cout); });
+</script>
+</body>
+</html>

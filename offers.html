@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Offers — Velour</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link rel="stylesheet" href="Style/interactive_style.css">
+<style>
+  .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(12px);background:rgba(15,14,22,.96);border:.5px solid var(--gold-border);border-radius:3px;padding:.65rem 1.25rem;font-size:13px;color:var(--text);display:flex;align-items:center;gap:.5rem;z-index:9999;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+  .modal-overlay.open{opacity:1;pointer-events:all;}
+  .modal{background:#0f0e19;border:.5px solid var(--gold-border);border-radius:4px;padding:2rem;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;position:relative;}
+  .modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--hint);cursor:pointer;font-size:18px;transition:color .2s;}
+  .modal-close:hover{color:var(--text);}
+  .modal-ey{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;}
+  .modal-title{font-family:var(--serif);font-size:26px;font-weight:300;margin-bottom:.5rem;}
+  .modal-sub{font-size:13px;color:var(--muted);font-weight:300;margin-bottom:1.25rem;line-height:1.6;}
+  .modal-divider{height:.5px;background:var(--border);margin:1.25rem 0;}
+  .modal-actions{display:flex;gap:.75rem;margin-top:1.5rem;}
+  .btn-modal-primary{flex:1;background:var(--gold);color:#0a0a0f;border:none;border-radius:2px;padding:.65rem 1.25rem;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:background .2s;}
+  .btn-modal-primary:hover{background:#c9a35d;}
+  .btn-modal-secondary{flex:1;background:none;color:var(--muted);border:.5px solid var(--border);border-radius:2px;padding:.65rem 1.25rem;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:all .2s;}
+  .btn-modal-secondary:hover{border-color:var(--gold-border);color:var(--text);}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem;}
+  .form-row.single{grid-template-columns:1fr;}
+  .form-group{display:flex;flex-direction:column;gap:.3rem;}
+  .form-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--hint);font-weight:400;}
+  .form-input{background:rgba(240,237,232,.04);border:.5px solid var(--border);border-radius:2px;padding:.6rem .75rem;font-size:13px;font-family:var(--sans);color:var(--text);width:100%;transition:border-color .2s;}
+  .form-input:focus{outline:none;border-color:rgba(212,175,114,.4);}
+  .form-input::placeholder{color:var(--hint);}
+  .booking-summary{background:rgba(212,175,114,.05);border:.5px solid var(--gold-border);border-radius:3px;padding:1rem;margin-bottom:1.25rem;}
+  .bs-hotel{font-family:var(--serif);font-size:15px;font-weight:400;margin-bottom:.3rem;}
+  .bs-detail{font-size:12px;color:var(--muted);font-weight:300;margin-bottom:.75rem;}
+  .bs-price-row{display:flex;align-items:baseline;justify-content:space-between;}
+  .bs-total-label{font-size:11px;color:var(--hint);text-transform:uppercase;letter-spacing:.08em;}
+  .bs-total{font-family:var(--serif);font-size:22px;color:var(--gold);font-weight:300;}
+  .success-state{text-align:center;padding:2rem 0;}
+  .success-icon{font-size:48px;color:var(--gold);margin-bottom:1rem;}
+  .success-title{font-family:var(--serif);font-size:28px;font-weight:300;margin-bottom:.75rem;}
+  .success-sub{font-size:13px;color:var(--muted);font-weight:300;line-height:1.7;}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"><i class="ti ti-check"></i><span id="toastMsg">Done!</span></div>
+
+<!-- ── SIGN-IN MODAL ── -->
+<div class="modal-overlay" id="signinModal">
+  <div class="modal" style="max-width:420px;">
+    <button class="modal-close" onclick="closeModal('signinModal')"><i class="ti ti-x"></i></button>
+    <p class="modal-ey">Welcome back</p>
+    <h2 class="modal-title">Sign in to Velour</h2>
+    <p class="modal-sub">Access your bookings, saved hotels, and member rates.</p>
+    <div class="form-row single"><div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" placeholder="your@email.com"></div></div>
+    <div class="form-row single" style="margin-bottom:1.25rem;"><div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" placeholder="••••••••"></div></div>
+    <div class="modal-actions">
+      <button class="btn-modal-primary" onclick="handleSignIn()">Sign in</button>
+      <button class="btn-modal-secondary" onclick="closeModal('signinModal')">Cancel</button>
+    </div>
+    <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:1rem;font-weight:300;">Don't have an account? <span style="color:var(--gold);cursor:pointer;" onclick="handleSignIn()">Join free</span></p>
+  </div>
+</div>
+
+<!-- ── BOOKING MODAL ── -->
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('bookingModal')"><i class="ti ti-x"></i></button>
+    <div id="bookingForm">
+      <p class="modal-ey">Reserve your stay</p>
+      <h2 class="modal-title" id="bookModalTitle">Hotel</h2>
+      <div class="booking-summary">
+        <p class="bs-hotel" id="bsSummaryHotel"></p>
+        <p class="bs-detail" id="bsSummaryDates">5 nights · 2 guests</p>
+        <div class="bs-price-row">
+          <span class="bs-total-label">Estimated total</span>
+          <span class="bs-total" id="bsTotal">$0</span>
+        </div>
+      </div>
+      <div class="modal-divider"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">First name</label><input class="form-input" type="text" placeholder="Sophie"></div>
+        <div class="form-group"><label class="form-label">Last name</label><input class="form-input" type="text" placeholder="Anderson"></div>
+      </div>
+      <div class="form-row single"><div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" placeholder="your@email.com"></div></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Check-in</label><input class="form-input" type="date" id="bookCheckin"></div>
+        <div class="form-group"><label class="form-label">Check-out</label><input class="form-input" type="date" id="bookCheckout"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Guests</label>
+          <select class="form-input"><option>1 adult</option><option selected>2 adults</option><option>2 adults, 1 child</option><option>2 adults, 2 children</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">Room type</label>
+          <select class="form-input"><option>Deluxe Room</option><option>Superior Room</option><option>Junior Suite</option><option>Grand Suite</option></select>
+        </div>
+      </div>
+      <div class="form-row single"><div class="form-group"><label class="form-label">Special requests (optional)</label><input class="form-input" type="text" placeholder="e.g. high floor, quiet room…"></div></div>
+      <div class="modal-divider"></div>
+      <p class="form-label" style="margin-bottom:.6rem;">Payment details</p>
+      <div class="form-row single"><div class="form-group"><label class="form-label">Card number</label><input class="form-input" type="text" placeholder="4242 4242 4242 4242"></div></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Expiry</label><input class="form-input" type="text" placeholder="MM / YY"></div>
+        <div class="form-group"><label class="form-label">CVV</label><input class="form-input" type="text" placeholder="123"></div>
+      </div>
+      <div class="modal-actions" style="margin-top:1.25rem;">
+        <button class="btn-modal-primary" onclick="confirmBooking()">Confirm booking</button>
+        <button class="btn-modal-secondary" onclick="closeModal('bookingModal')">Cancel</button>
+      </div>
+      <p style="font-size:11px;color:var(--hint);text-align:center;margin-top:.75rem;font-weight:300;"><i class="ti ti-lock" style="font-size:12px;vertical-align:-2px;margin-right:3px;"></i>Secure booking · Free cancellation up to 48 hrs before check-in</p>
+    </div>
+    <div id="bookingSuccess" class="success-state" style="display:none;">
+      <div class="success-icon"><i class="ti ti-circle-check"></i></div>
+      <h2 class="success-title">Booking confirmed!</h2>
+      <p class="success-sub">Your reservation has been placed. A confirmation email will be sent to you shortly.<br><br>Booking reference: <strong style="color:var(--gold);letter-spacing:.1em;">VLR-<span id="bookRef"></span></strong></p>
+      <div style="margin-top:1.5rem;">
+        <button class="btn-modal-primary" onclick="closeModal('bookingModal')">Back to browsing</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">Velour</div>
+  <ul class="nav-links">
+    <li><a href="hotels.html">Hotels</a></li>
+    <li><a href="destinations.html">Destinations</a></li>
+    <li><a href="offers.html" class="active">Offers</a></li>
+  </ul>
+  <button class="btn-signin" onclick="openModal('signinModal')">Sign in</button>
+</nav>
+
+<div class="page active" id="page-offers">
+  <div class="page-hero" style="position:relative;">
+    <div class="hg"></div>
+    <div class="page-hero-inner">
+      <div><p class="eyebrow">Limited-time deals</p><h1 class="page-title">Exceptional stays<br>at <em>exceptional</em> prices</h1></div>
+      <p class="page-sub">Hand-selected offers, early-access rates, and member exclusives — refreshed every week.</p>
+    </div>
+  </div>
+  <div class="countdown-bar">
+    <span class="cd-label"><i class="ti ti-clock" style="font-size:14px;vertical-align:-2px;margin-right:4px;"></i>Flash sale ends in</span>
+    <div class="cd-timer">
+      <div class="cd-unit"><span class="cd-num" id="cd-h">08</span><span class="cd-lbl">hrs</span></div>
+      <span class="cd-sep">:</span>
+      <div class="cd-unit"><span class="cd-num" id="cd-m">34</span><span class="cd-lbl">min</span></div>
+      <span class="cd-sep">:</span>
+      <div class="cd-unit"><span class="cd-num" id="cd-s">17</span><span class="cd-lbl">sec</span></div>
+    </div>
+    <div style="width:4px;height:4px;border-radius:50%;background:var(--gold);opacity:.3;flex-shrink:0;"></div>
+    <span style="font-size:12px;font-weight:300;color:var(--muted);">Up to 40% off selected properties</span>
+  </div>
+  <div class="offers-filter-bar">
+    <button class="fp on" data-type="all" onclick="setOfferFilter(this)">All offers</button>
+    <button class="fp" data-type="flash" onclick="setOfferFilter(this)">Flash deals</button>
+    <button class="fp" data-type="early" onclick="setOfferFilter(this)">Early booking</button>
+    <button class="fp" data-type="last" onclick="setOfferFilter(this)">Last minute</button>
+    <button class="fp" data-type="member" onclick="setOfferFilter(this)">Members only</button>
+    <button class="fp" data-type="honeymoon" onclick="setOfferFilter(this)">Honeymoon</button>
+    <button class="fp" data-type="family" onclick="setOfferFilter(this)">Family</button>
+  </div>
+  <section class="section">
+    <p class="sec-eyebrow">Deal of the week</p>
+    <div class="hero-offer" style="height:300px;" onclick="openBooking('The Grand Bleu','Nice, France',408)">
+      <div class="doi-w"><div class="doi"><svg width="100%" height="100%" viewBox="0 0 680 280" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="680" height="280" fill="#0f1a20"/><rect x="0" y="150" width="680" height="130" fill="#080f18"/><rect x="0" y="70" width="680" height="85" fill="#122030"/><rect x="0" y="20" width="680" height="55" fill="#1a2d48"/><rect x="40" y="30" width="60" height="120" rx="2" fill="#1e3050"/><rect x="115" y="45" width="50" height="105" rx="2" fill="#1a2c4a"/><rect x="180" y="35" width="65" height="115" rx="2" fill="#1e3258"/><rect x="260" y="50" width="55" height="100" rx="2" fill="#1a2e50"/><rect x="330" y="30" width="70" height="120" rx="2" fill="#223560"/><rect x="418" y="42" width="55" height="108" rx="2" fill="#1e3055"/><rect x="490" y="25" width="65" height="125" rx="2" fill="#24386a"/><rect x="572" y="38" width="50" height="112" rx="2" fill="#1e3258"/><rect x="640" y="30" width="40" height="120" rx="2" fill="#1a2d4e"/><path d="M0 165 Q170 150 340 160 Q510 170 680 155 L680 280 L0 280 Z" fill="#0a1525" opacity="0.85"/></svg></div></div>
+      <div class="offers-dov">
+        <div class="hero-offer-content">
+          <div class="offer-tag-big"><i class="ti ti-bolt" style="font-size:13px;"></i>Flash sale · 40% off</div>
+          <h2 class="hero-offer-title">The Grand Bleu,<br><em>Côte d'Azur</em></h2>
+          <p class="hero-offer-sub">5-night minimum · Breakfast included · Free airport transfer</p>
+          <div class="hero-offer-meta">
+            <span class="hom"><i class="ti ti-calendar"></i>Jun 1 – Aug 31</span>
+            <span class="hom"><i class="ti ti-star"></i>9.6 · Outstanding</span>
+            <span class="hom"><i class="ti ti-map-pin"></i>Nice, France</span>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:1.25rem;">
+            <span style="font-size:16px;color:var(--hint);font-weight:300;text-decoration:line-through;">$680</span>
+            <span style="font-family:var(--serif);font-size:32px;font-weight:300;color:var(--gold);">$408</span>
+            <span style="font-size:12px;color:var(--muted);font-weight:300;">/ night</span>
+          </div>
+          <button class="btn-cta" onclick="openBooking('The Grand Bleu','Nice, France',408);event.stopPropagation();">Claim this offer ↗</button>
+        </div>
+      </div>
+      <div class="savings-badge"><span class="sb-pct">40%</span><span class="sb-lbl">savings</span></div>
+    </div>
+  </section>
+  <section class="section" style="padding-top:0;">
+    <div class="sec-header"><div><p class="sec-eyebrow">Current promotions</p><h2 class="sec-title" style="margin-bottom:0;">All active offers</h2></div><button class="btn-viewall" onclick="sortEndingSoon()">Ending soonest <i class="ti ti-arrow-right"></i></button></div>
+    <div class="offers-grid" id="offersGrid">
+      <div class="oc" data-type="last"><div class="oc-thumb"><svg viewBox="0 0 260 140" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="140" fill="#1a1228"/><rect x="0" y="78" width="260" height="62" fill="#0f0c1e"/><rect x="30" y="18" width="200" height="65" fill="#241a38"/><rect x="50" y="26" width="22" height="48" rx="1" fill="#2e2248"/><rect x="110" y="16" width="26" height="58" rx="1" fill="#342a52"/><rect x="175" y="18" width="24" height="56" rx="1" fill="#382c58"/></svg><span class="oc-badge">Last minute</span><span class="oc-save">-25%</span></div><div class="oc-body"><p class="oc-loc"><i class="ti ti-map-pin" style="font-size:11px;vertical-align:-1px;"></i> Paris, France</p><h3 class="oc-title">Hôtel de la Lumière</h3><p class="oc-desc">Book 48 hrs in advance, stay any 3 nights in June. Champagne welcome included.</p><div class="oc-footer"><div class="oc-price"><span class="oc-orig">$380</span><span class="oc-now">$285</span><span class="oc-night">/ night</span></div><button class="btn-view" onclick="openBooking('Hôtel de la Lumière','Paris, France',285)">Book <i class="ti ti-arrow-right"></i></button></div></div></div>
+
+      <div class="oc" data-type="early"><div class="oc-thumb"><svg viewBox="0 0 260 140" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="140" fill="#0f1a10"/><rect x="0" y="80" width="260" height="60" fill="#0a1208"/><rect x="15" y="12" width="230" height="72" fill="#1a2e1c"/><rect x="30" y="22" width="13" height="55" rx="6" fill="#223820"/><rect x="72" y="18" width="15" height="59" rx="7" fill="#28402a"/><rect x="120" y="14" width="17" height="63" rx="8" fill="#2c4830"/><rect x="175" y="12" width="18" height="65" rx="9" fill="#304838"/><rect x="105" y="84" width="50" height="35" rx="1" fill="#152018"/><path d="M105 84 L130 65 L155 84 Z" fill="#1a2820"/></svg><span class="oc-badge">Early booking</span><span class="oc-save">-30%</span></div><div class="oc-body"><p class="oc-loc"><i class="ti ti-map-pin" style="font-size:11px;vertical-align:-1px;"></i> Kyoto, Japan</p><h3 class="oc-title">Ryokan Midori No Yuki</h3><p class="oc-desc">Book 60 days ahead for autumn season. Includes private tea ceremony for two.</p><div class="oc-footer"><div class="oc-price"><span class="oc-orig">$290</span><span class="oc-now">$203</span><span class="oc-night">/ night</span></div><button class="btn-view" onclick="openBooking('Ryokan Midori No Yuki','Kyoto, Japan',203)">Book <i class="ti ti-arrow-right"></i></button></div></div></div>
+
+      <div class="oc" data-type="member"><div class="oc-thumb"><svg viewBox="0 0 260 140" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="140" fill="#12182a"/><rect x="0" y="78" width="260" height="62" fill="#0a1020"/><rect x="18" y="14" width="50" height="67" rx="25" fill="#1e3558"/><rect x="78" y="22" width="40" height="57" rx="20" fill="#192c50"/><rect x="128" y="12" width="55" height="70" rx="27" fill="#223860"/><rect x="193" y="20" width="42" height="60" rx="21" fill="#1e3258"/><ellipse cx="130" cy="85" rx="120" ry="6" fill="#1a2d50" opacity="0.6"/></svg><span class="oc-badge">Members only</span><span class="oc-save">-35%</span></div><div class="oc-body"><p class="oc-loc"><i class="ti ti-map-pin" style="font-size:11px;vertical-align:-1px;"></i> Santorini, Greece</p><h3 class="oc-title">Aegean Blue Retreat</h3><p class="oc-desc">Exclusive member rate. Includes infinity pool access and sunset dinner for two.</p><div class="oc-footer"><div class="oc-price"><span class="oc-orig">$520</span><span class="oc-now">$338</span><span class="oc-night">/ night</span></div><button class="btn-view" onclick="openBooking('Aegean Blue Retreat','Santorini, Greece',338)">Join &amp; book <i class="ti ti-arrow-right"></i></button></div></div></div>
+
+      <div class="oc" data-type="honeymoon"><div class="oc-thumb"><svg viewBox="0 0 260 140" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="140" fill="#180a0a"/><rect x="0" y="78" width="260" height="62" fill="#100606"/><rect x="20" y="15" width="220" height="68" rx="2" fill="#2a1214"/><rect x="50" y="34" width="25" height="36" rx="1" fill="#3c1c20"/><rect x="115" y="26" width="30" height="44" rx="1" fill="#402028"/><rect x="187" y="25" width="25" height="45" rx="1" fill="#3e2025"/></svg><span class="oc-badge">Honeymoon</span><span class="oc-save">-20%</span></div><div class="oc-body"><p class="oc-loc"><i class="ti ti-map-pin" style="font-size:11px;vertical-align:-1px;"></i> Maldives</p><h3 class="oc-title">Velaa Private Island</h3><p class="oc-desc">7-night minimum. Overwater villa, couples spa, private butler. Roses on arrival.</p><div class="oc-footer"><div class="oc-price"><span class="oc-orig">$1,200</span><span class="oc-now">$960</span><span class="oc-night">/ night</span></div><button class="btn-view" onclick="openBooking('Velaa Private Island','Maldives',960)">Book <i class="ti ti-arrow-right"></i></button></div></div></div>
+
+      <div class="oc" data-type="flash"><div class="oc-thumb"><svg viewBox="0 0 260 140" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="140" fill="#16100a"/><rect x="0" y="75" width="260" height="65" fill="#0e0c06"/><rect x="12" y="8" width="10" height="60" rx="1" fill="#2a1e0c"/><rect x="76" y="4" width="20" height="72" rx="1" fill="#382a14"/><rect x="130" y="0" width="24" height="76" rx="1" fill="#3e2e18"/><rect x="192" y="6" width="20" height="70" rx="1" fill="#322614"/><rect x="246" y="8" width="12" height="68" rx="1" fill="#261c0c"/><rect x="133" y="0" width="16" height="10" rx="1" fill="#4a361e"/></svg><span class="oc-badge">Flash deal</span><span class="oc-save">-40%</span></div><div class="oc-body"><p class="oc-loc"><i class="ti ti-map-pin" style="font-size:11px;vertical-align:-1px;"></i> Dubai, UAE</p><h3 class="oc-title">One&amp;Only Royal Mirage</h3><p class="oc-desc">48-hr flash offer. Breakfast + resort credit. Valid for stays in July only.</p><div class="oc-footer"><div class="oc-price"><span class="oc-orig">$650</span><span class="oc-now">$390</span><span class="oc-night">/ night</span></div><button class="btn-view" onclick="openBooking('One&amp;Only Royal Mirage','Dubai, UAE',390)">Book <i class="ti ti-arrow-right"></i></button></div></div></div>
+
+      <div class="oc" data-type="family"><div class="oc-thumb"><svg viewBox="0 0 260 140" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="140" fill="#0e1818"/><rect x="0" y="78" width="260" height="62" fill="#080f0f"/><rect x="15" y="14" width="230" height="70" fill="#162e2e"/><rect x="25" y="24" width="15" height="52" rx="7" fill="#1e3c3c"/><rect x="70" y="20" width="18" height="56" rx="9" fill="#224242"/><rect x="122" y="16" width="20" height="60" rx="10" fill="#284848"/><rect x="182" y="14" width="22" height="62" rx="11" fill="#2c4e4a"/></svg><span class="oc-badge">Family</span><span class="oc-save">-15%</span></div><div class="oc-body"><p class="oc-loc"><i class="ti ti-map-pin" style="font-size:11px;vertical-align:-1px;"></i> Bali, Indonesia</p><h3 class="oc-title">Alila Villas Uluwatu</h3><p class="oc-desc">Kids stay free. 3-bedroom villa, nanny service, private pool. Min. 5 nights.</p><div class="oc-footer"><div class="oc-price"><span class="oc-orig">$820</span><span class="oc-now">$697</span><span class="oc-night">/ night</span></div><button class="btn-view" onclick="openBooking('Alila Villas Uluwatu','Bali, Indonesia',697)">Book <i class="ti ti-arrow-right"></i></button></div></div></div>
+    </div>
+  </section>
+  <div class="divider"></div>
+  <section class="section" style="padding-top:2rem;padding-bottom:0;">
+    <p class="sec-eyebrow">Velour membership</p>
+    <h2 class="sec-title" style="margin-bottom:1rem;">Unlock more with every stay</h2>
+    <div class="loyalty-band">
+      <div class="lb-top">
+        <div class="lb-tier"><p class="lb-tier-name">Entry</p><p class="lb-tier-title silver">Silver</p><ul class="lb-perks"><li><i class="ti ti-check"></i>5% member rate</li><li><i class="ti ti-check"></i>Priority support</li><li><i class="ti ti-check"></i>Early access to offers</li></ul></div>
+        <div class="lb-tier"><p class="lb-tier-name">Most popular</p><p class="lb-tier-title gold">Gold</p><ul class="lb-perks"><li><i class="ti ti-check"></i>15% member rate</li><li><i class="ti ti-check"></i>Free room upgrades</li><li><i class="ti ti-check"></i>Late checkout guaranteed</li><li><i class="ti ti-check"></i>Welcome amenity</li></ul></div>
+        <div class="lb-tier"><p class="lb-tier-name">Elite</p><p class="lb-tier-title platinum">Platinum</p><ul class="lb-perks"><li><i class="ti ti-check"></i>25% member rate</li><li><i class="ti ti-check"></i>Suite upgrades on arrival</li><li><i class="ti ti-check"></i>Dedicated concierge</li><li><i class="ti ti-check"></i>Complimentary experiences</li><li><i class="ti ti-check"></i>Annual gift</li></ul></div>
+      </div>
+      <div class="lb-bottom"><p class="lb-bottom-text">Join free today — your first stay earns you <strong>Silver</strong> status instantly.</p><button class="btn-cta" onclick="openModal('signinModal')">Join Velour membership ↗</button></div>
+    </div>
+  </section>
+  <section class="section">
+    <p class="sec-eyebrow">Promo codes</p>
+    <h2 class="sec-title" style="margin-bottom:1rem;">Use a code at checkout</h2>
+    <div class="promo-strip">
+      <div class="pc"><i class="ti ti-gift pc-icon"></i><div><p class="pc-title">New member welcome</p><p class="pc-desc">10% off your first booking when you create a free Velour account. No minimum spend.</p><span class="pc-code" onclick="copyCode('WELCOME10')">WELCOME10</span></div></div>
+      <div class="pc"><i class="ti ti-sun pc-icon"></i><div><p class="pc-title">Summer escape</p><p class="pc-desc">Extra 12% off any booking of 5 nights or more between June and September 2026.</p><span class="pc-code" onclick="copyCode('SUMMER12')">SUMMER12</span></div></div>
+      <div class="pc"><i class="ti ti-heart pc-icon"></i><div><p class="pc-title">Honeymoon special</p><p class="pc-desc">15% off all honeymoon packages. Applies to any property in our romance collection.</p><span class="pc-code" onclick="copyCode('ROMANCE15')">ROMANCE15</span></div></div>
+      <div class="pc"><i class="ti ti-building pc-icon"></i><div><p class="pc-title">Extended stay</p><p class="pc-desc">Book 7 nights or more at any Velour property and receive 20% off the total rate.</p><span class="pc-code" onclick="copyCode('STAY7SAVE')">STAY7SAVE</span></div></div>
+    </div>
+  </section>
+  <footer class="footer">
+    <div class="footer-logo" onclick="location.href='index.html'" style="cursor:pointer;">Velour</div>
+    <ul class="footer-links">
+      <li><a href="#" onclick="showToast('Privacy policy coming soon')">Privacy</a></li>
+      <li><a href="#" onclick="showToast('Terms coming soon')">Terms</a></li>
+      <li><a href="#" onclick="showToast('Careers coming soon')">Careers</a></li>
+      <li><a href="#" onclick="showToast('Press kit coming soon')">Press</a></li>
+    </ul>
+    <p class="footer-copy">© 2026 Velour Travel Ltd.</p>
+  </footer>
+</div>
+
+<script>
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').innerHTML = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'bookingModal') {
+    document.getElementById('bookingForm').style.display = '';
+    document.getElementById('bookingSuccess').style.display = 'none';
+  }
+}
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) closeModal(o.id); });
+});
+function handleSignIn() { closeModal('signinModal'); showToast('Welcome back to Velour ✦'); }
+
+function openBooking(name, location, price) {
+  document.getElementById('bookModalTitle').textContent = name;
+  document.getElementById('bsSummaryHotel').textContent = name + ' — ' + location;
+  const nights = 5;
+  document.getElementById('bsSummaryDates').textContent = '5 nights · 2 guests (offer minimum)';
+  document.getElementById('bsTotal').textContent = '$' + (price * nights).toLocaleString();
+  const today = new Date();
+  const cin = new Date(today); cin.setDate(cin.getDate() + 14);
+  const cout = new Date(cin); cout.setDate(cout.getDate() + 5);
+  const fmt = d => d.toISOString().split('T')[0];
+  document.getElementById('bookCheckin').value = fmt(cin);
+  document.getElementById('bookCheckout').value = fmt(cout);
+  document.getElementById('bookingForm').style.display = '';
+  document.getElementById('bookingSuccess').style.display = 'none';
+  openModal('bookingModal');
+}
+function confirmBooking() {
+  const ref = Math.random().toString(36).substring(2, 8).toUpperCase();
+  document.getElementById('bookRef').textContent = ref;
+  document.getElementById('bookingForm').style.display = 'none';
+  document.getElementById('bookingSuccess').style.display = 'block';
+}
+
+function setOfferFilter(btn) {
+  document.querySelectorAll('.fp').forEach(p => p.classList.remove('on'));
+  btn.classList.add('on');
+  const t = btn.dataset.type;
+  document.querySelectorAll('#offersGrid .oc').forEach(c => {
+    c.style.display = (t === 'all' || c.dataset.type === t) ? '' : 'none';
+  });
+}
+
+function sortEndingSoon() {
+  showToast('Sorted by ending soonest');
+}
+
+function copyCode(code) {
+  navigator.clipboard.writeText(code).catch(() => {});
+  showToast('<i class="ti ti-copy"></i> Code copied: ' + code);
+}
+
+// ── Live Countdown ──
+let totalSecs = 8 * 3600 + 34 * 60 + 17;
+setInterval(() => {
+  if (totalSecs <= 0) return;
+  totalSecs--;
+  const h = Math.floor(totalSecs / 3600);
+  const m = Math.floor((totalSecs % 3600) / 60);
+  const s = totalSecs % 60;
+  document.getElementById('cd-h').textContent = String(h).padStart(2, '0');
+  document.getElementById('cd-m').textContent = String(m).padStart(2, '0');
+  document.getElementById('cd-s').textContent = String(s).padStart(2, '0');
+}, 1000);
+</script>
+</body>
+</html>

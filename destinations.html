@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Destinations — Velour</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link rel="stylesheet" href="Style/interactive_style.css">
+<style>
+  .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(12px);background:rgba(15,14,22,.96);border:.5px solid var(--gold-border);border-radius:3px;padding:.65rem 1.25rem;font-size:13px;color:var(--text);display:flex;align-items:center;gap:.5rem;z-index:9999;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+  .modal-overlay.open{opacity:1;pointer-events:all;}
+  .modal{background:#0f0e19;border:.5px solid var(--gold-border);border-radius:4px;padding:2rem;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;position:relative;}
+  .modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--hint);cursor:pointer;font-size:18px;transition:color .2s;}
+  .modal-close:hover{color:var(--text);}
+  .modal-ey{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;}
+  .modal-title{font-family:var(--serif);font-size:26px;font-weight:300;margin-bottom:.5rem;}
+  .modal-sub{font-size:13px;color:var(--muted);font-weight:300;margin-bottom:1.25rem;line-height:1.6;}
+  .modal-actions{display:flex;gap:.75rem;margin-top:1.5rem;}
+  .btn-modal-primary{flex:1;background:var(--gold);color:#0a0a0f;border:none;border-radius:2px;padding:.65rem 1.25rem;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:background .2s;}
+  .btn-modal-primary:hover{background:#c9a35d;}
+  .btn-modal-secondary{flex:1;background:none;color:var(--muted);border:.5px solid var(--border);border-radius:2px;padding:.65rem 1.25rem;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:all .2s;}
+  .btn-modal-secondary:hover{border-color:var(--gold-border);color:var(--text);}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem;}
+  .form-row.single{grid-template-columns:1fr;}
+  .form-group{display:flex;flex-direction:column;gap:.3rem;}
+  .form-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--hint);font-weight:400;}
+  .form-input{background:rgba(240,237,232,.04);border:.5px solid var(--border);border-radius:2px;padding:.6rem .75rem;font-size:13px;font-family:var(--sans);color:var(--text);width:100%;transition:border-color .2s;}
+  .form-input:focus{outline:none;border-color:rgba(212,175,114,.4);}
+  .form-input::placeholder{color:var(--hint);}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"><i class="ti ti-check"></i><span id="toastMsg">Done!</span></div>
+
+<!-- ── SIGN-IN MODAL ── -->
+<div class="modal-overlay" id="signinModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('signinModal')"><i class="ti ti-x"></i></button>
+    <p class="modal-ey">Welcome back</p>
+    <h2 class="modal-title">Sign in to Velour</h2>
+    <p class="modal-sub">Access your bookings, saved hotels, and member rates.</p>
+    <div class="form-row single"><div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" placeholder="your@email.com"></div></div>
+    <div class="form-row single" style="margin-bottom:1.25rem;"><div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" placeholder="••••••••"></div></div>
+    <div class="modal-actions">
+      <button class="btn-modal-primary" onclick="handleSignIn()">Sign in</button>
+      <button class="btn-modal-secondary" onclick="closeModal('signinModal')">Cancel</button>
+    </div>
+    <p style="font-size:12px;color:var(--hint);text-align:center;margin-top:1rem;font-weight:300;">Don't have an account? <span style="color:var(--gold);cursor:pointer;" onclick="handleSignIn()">Join free</span></p>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">Velour</div>
+  <ul class="nav-links">
+    <li><a href="hotels.html">Hotels</a></li>
+    <li><a href="destinations.html" class="active">Destinations</a></li>
+    <li><a href="offers.html">Offers</a></li>
+  </ul>
+  <button class="btn-signin" onclick="openModal('signinModal')">Sign in</button>
+</nav>
+
+<div class="page active" id="page-destinations">
+  <div class="page-hero" style="position:relative;">
+    <div class="hg"></div>
+    <div class="page-hero-inner">
+      <div><p class="eyebrow">120+ destinations worldwide</p><h1 class="page-title">Explore the<br><em>world</em> with us</h1></div>
+      <p class="page-sub">From the mist-covered temples of Asia to the sunlit piazzas of Europe — find the destination that calls to you.</p>
+    </div>
+  </div>
+  <div class="dest-search-row">
+    <i class="ti ti-search" style="font-size:16px;color:var(--hint);flex-shrink:0;"></i>
+    <input class="srch-inp" type="text" placeholder="Search a destination…" id="destSearch" oninput="filterDests()">
+  </div>
+  <section class="section">
+    <div class="sec-header"><div><p class="sec-eyebrow">Editor's spotlight</p><h2 class="sec-title" style="margin-bottom:0;">Must-visit destinations</h2></div></div>
+    <div class="feat-hero-grid">
+      <div class="dc" style="height:300px;" onclick="navToDestination('Kyoto')">
+        <div class="dci-w"><div class="dci"><svg width="100%" height="100%" viewBox="0 0 460 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="460" height="300" fill="#0f1a10"/><rect x="0" y="160" width="460" height="140" fill="#0a1208"/><rect x="15" y="30" width="430" height="135" fill="#1a2e1c"/><rect x="30" y="42" width="16" height="88" rx="8" fill="#22381e"/><rect x="78" y="35" width="20" height="95" rx="10" fill="#28402a"/><rect x="138" y="30" width="24" height="100" rx="12" fill="#2e4830"/><rect x="206" y="28" width="26" height="102" rx="13" fill="#324838"/><rect x="280" y="34" width="22" height="96" rx="11" fill="#2c4635"/><rect x="345" y="32" width="25" height="98" rx="12" fill="#2e4a38"/><rect x="165" y="130" width="130" height="90" rx="2" fill="#172618"/><path d="M165 130 L230 100 L295 130 Z" fill="#1c3020"/><rect x="195" y="148" width="70" height="72" rx="1" fill="#12201a"/></svg></div></div>
+        <div class="dov"><div><p class="dcn">Japan</p><p class="dct">Kyoto</p><p class="dcc">73 hotels · 28 experiences</p></div></div>
+        <span class="dbadge">Trending</span>
+      </div>
+      <div class="dc" style="height:300px;" onclick="navToDestination('Amalfi Coast')">
+        <div class="dci-w"><div class="dci"><svg width="100%" height="100%" viewBox="0 0 260 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="300" fill="#0e1828"/><rect x="0" y="170" width="260" height="130" fill="#080f1e"/><rect x="0" y="30" width="260" height="65" fill="#1a2d48"/><rect x="20" y="50" width="55" height="120" rx="2" fill="#1e3050"/><rect x="85" y="65" width="45" height="105" rx="2" fill="#1a2c4a"/><rect x="140" y="55" width="50" height="115" rx="2" fill="#1e3258"/><rect x="200" y="70" width="40" height="100" rx="2" fill="#1a2e50"/><path d="M0 185 Q65 175 130 182 Q195 189 260 178 L260 300 L0 300 Z" fill="#0a1525" opacity="0.85"/></svg></div></div>
+        <div class="dov"><div><p class="dcn">Italy</p><p class="dct">Amalfi Coast</p><p class="dcc">38 hotels · 16 experiences</p></div></div>
+        <span class="dbadge">Exclusive</span>
+      </div>
+    </div>
+    <div class="feat-hero-sub">
+      <div class="dc" style="height:180px;" onclick="navToDestination('Marrakech')"><div class="dci-w"><div class="dci"><svg width="100%" height="100%" viewBox="0 0 200 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="180" fill="#1a100a"/><rect x="40" y="20" width="120" height="85" rx="2" fill="#2a1d14"/><rect x="55" y="5" width="90" height="22" rx="1" fill="#322418"/><rect x="25" y="55" width="35" height="50" rx="1" fill="#241810"/><rect x="140" y="50" width="35" height="55" rx="1" fill="#241810"/></svg></div></div><div class="dov" style="padding:.9rem;"><div><p class="dcn">Morocco</p><p class="dct" style="font-size:17px;">Marrakech</p><p class="dcc">41 hotels</p></div></div></div>
+      <div class="dc" style="height:180px;" onclick="navToDestination('Santorini')"><div class="dci-w"><div class="dci"><svg width="100%" height="100%" viewBox="0 0 200 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="180" fill="#12182a"/><rect x="20" y="18" width="40" height="78" rx="20" fill="#1e3558"/><rect x="70" y="28" width="32" height="65" rx="16" fill="#192c50"/><rect x="112" y="14" width="44" height="82" rx="22" fill="#223860"/><rect x="162" y="24" width="30" height="72" rx="15" fill="#1e3258"/><rect x="0" y="100" width="200" height="8" fill="#132038"/><ellipse cx="100" cy="103" rx="90" ry="5" fill="#1a2d50" opacity="0.6"/></svg></div></div><div class="dov" style="padding:.9rem;"><div><p class="dcn">Greece</p><p class="dct" style="font-size:17px;">Santorini</p><p class="dcc">58 hotels</p></div></div></div>
+      <div class="dc" style="height:180px;" onclick="navToDestination('Bali')"><div class="dci-w"><div class="dci"><svg width="100%" height="100%" viewBox="0 0 200 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="180" fill="#0f1a10"/><rect x="20" y="15" width="160" height="90" fill="#1a2e1c"/><rect x="35" y="28" width="10" height="62" rx="5" fill="#22381e"/><rect x="72" y="20" width="12" height="70" rx="6" fill="#28402a"/><rect x="110" y="15" width="14" height="75" rx="7" fill="#2e4830"/><rect x="150" y="18" width="13" height="72" rx="6" fill="#324838"/><rect x="80" y="100" width="40" height="55" rx="1" fill="#152018"/><path d="M80 100 L100 82 L120 100 Z" fill="#1a2820"/></svg></div></div><div class="dov" style="padding:.9rem;"><div><p class="dcn">Indonesia</p><p class="dct" style="font-size:17px;">Bali</p><p class="dcc">52 hotels</p></div></div></div>
+    </div>
+  </section>
+  <div class="divider"></div>
+  <section class="section" style="padding-top:2rem;">
+    <div class="sec-header">
+      <div><p class="sec-eyebrow">Full collection</p><h2 class="sec-title" style="margin-bottom:0;">All destinations</h2></div>
+      <button class="btn-viewall" onclick="sortAZ()">Sort A–Z <i class="ti ti-arrow-right"></i></button>
+    </div>
+    <div class="list-grid" id="destListGrid">
+      <div class="lc" data-reg="europe" data-name="paris" onclick="navToDestination('Paris')"><div class="lt"><svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#1a1228"/><rect x="30" y="20" width="140" height="50" fill="#2a2040"/><rect x="50" y="28" width="20" height="35" rx="1" fill="#332850"/><rect x="80" y="25" width="25" height="38" rx="1" fill="#362c58"/><rect x="115" y="30" width="18" height="33" rx="1" fill="#2e2448"/><rect x="143" y="26" width="20" height="37" rx="1" fill="#332850"/><rect x="87" y="8" width="11" height="20" rx="1" fill="#3d3060"/></svg></div><div class="lb"><p class="lbn">France · Europe</p><p class="lbt">Paris</p><div class="lbm"><i class="ti ti-building"></i>142 hotels<span style="margin-left:8px;"><i class="ti ti-sparkles"></i>54 exp.</span></div></div></div>
+      <div class="lc" data-reg="asia" data-name="tokyo" onclick="navToDestination('Tokyo')"><div class="lt"><svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#0e141e"/><rect x="10" y="15" width="180" height="55" fill="#152030"/><rect x="15" y="22" width="18" height="42" rx="1" fill="#1e3040"/><rect x="62" y="10" width="22" height="54" rx="1" fill="#223848"/><rect x="118" y="8" width="25" height="56" rx="1" fill="#263e50"/><rect x="178" y="12" width="14" height="52" rx="1" fill="#1c3244"/></svg></div><div class="lb"><p class="lbn">Japan · Asia</p><p class="lbt">Tokyo</p><div class="lbm"><i class="ti ti-building"></i>98 hotels<span style="margin-left:8px;"><i class="ti ti-sparkles"></i>41 exp.</span></div></div></div>
+      <div class="lc" data-reg="americas" data-name="new york" onclick="navToDestination('New York')"><div class="lt"><svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#0a0c14"/><rect x="8" y="15" width="12" height="58" rx="1" fill="#151c2c"/><rect x="26" y="8" width="15" height="65" rx="1" fill="#1a2238"/><rect x="67" y="5" width="18" height="68" rx="1" fill="#1e2a40"/><rect x="114" y="0" width="20" height="73" rx="1" fill="#223045"/><rect x="164" y="8" width="18" height="65" rx="1" fill="#1e2c42"/><circle cx="75" cy="10" r="3" fill="#d4af72" opacity="0.25"/></svg></div><div class="lb"><p class="lbn">USA · Americas</p><p class="lbt">New York</p><div class="lbm"><i class="ti ti-building"></i>115 hotels<span style="margin-left:8px;"><i class="ti ti-sparkles"></i>37 exp.</span></div></div></div>
+      <div class="lc" data-reg="africa" data-name="cape town" onclick="navToDestination('Cape Town')"><div class="lt"><svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#101820"/><rect x="40" y="10" width="120" height="58" rx="2" fill="#1a2c40"/><path d="M40 10 L100 -5 L160 10 Z" fill="#1e3248"/><rect x="55" y="42" width="15" height="28" rx="1" fill="#1a2a3c"/><rect x="110" y="42" width="15" height="28" rx="1" fill="#1a2a3c"/></svg></div><div class="lb"><p class="lbn">South Africa · Africa</p><p class="lbt">Cape Town</p><div class="lbm"><i class="ti ti-building"></i>67 hotels<span style="margin-left:8px;"><i class="ti ti-sparkles"></i>22 exp.</span></div></div></div>
+      <div class="lc" data-reg="europe" data-name="barcelona" onclick="navToDestination('Barcelona')"><div class="lt"><svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#141018"/><rect x="20" y="20" width="160" height="52" fill="#201a2c"/><rect x="30" y="28" width="22" height="38" rx="1" fill="#2a2238"/><rect x="86" y="20" width="28" height="46" rx="1" fill="#2e2840"/><rect x="152" y="22" width="22" height="44" rx="1" fill="#2c2640"/></svg></div><div class="lb"><p class="lbn">Spain · Europe</p><p class="lbt">Barcelona</p><div class="lbm"><i class="ti ti-building"></i>89 hotels<span style="margin-left:8px;"><i class="ti ti-sparkles"></i>33 exp.</span></div></div></div>
+      <div class="lc" data-reg="oceania" data-name="sydney" onclick="navToDestination('Sydney')"><div class="lt"><svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#0e1620"/><rect x="0" y="38" width="200" height="35" fill="#122030"/><rect x="60" y="15" width="80" height="55" rx="40" fill="#1a2e48" opacity="0.7"/><rect x="20" y="55" width="35" height="18" rx="1" fill="#162438"/><rect x="145" y="52" width="35" height="20" rx="1" fill="#162438"/></svg></div><div class="lb"><p class="lbn">Australia · Oceania</p><p class="lbt">Sydney</p><div class="lbm"><i class="ti ti-building"></i>54 hotels<span style="margin-left:8px;"><i class="ti ti-sparkles"></i>19 exp.</span></div></div></div>
+      <div class="lc" data-reg="americas" data-name="buenos aires" onclick="navToDestination('Buenos Aires')"><div class="lt"><svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#12101e"/><rect x="10" y="20" width="180" height="48" fill="#1e1a30"/><rect x="18" y="28" width="15" height="35" rx="1" fill="#28223e"/><rect x="66" y="20" width="20" height="43" rx="1" fill="#302a48"/><rect x="120" y="18" width="22" height="45" rx="1" fill="#34304e"/><rect x="176" y="26" width="14" height="37" rx="1" fill="#2a2440"/></svg></div><div class="lb"><p class="lbn">Argentina · Americas</p><p class="lbt">Buenos Aires</p><div class="lbm"><i class="ti ti-building"></i>43 hotels<span style="margin-left:8px;"><i class="ti ti-sparkles"></i>18 exp.</span></div></div></div>
+      <div class="lc" data-reg="asia" data-name="dubai" onclick="navToDestination('Dubai')"><div class="lt"><svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#16100a"/><rect x="10" y="8" width="8" height="60" rx="1" fill="#2a1e0c"/><rect x="65" y="5" width="18" height="63" rx="1" fill="#382a14"/><rect x="115" y="0" width="22" height="68" rx="1" fill="#3e2e18"/><rect x="172" y="15" width="18" height="53" rx="1" fill="#322614"/><rect x="119" y="0" width="14" height="8" rx="1" fill="#4a361e"/></svg></div><div class="lb"><p class="lbn">UAE · Asia</p><p class="lbt">Dubai</p><div class="lbm"><i class="ti ti-building"></i>76 hotels<span style="margin-left:8px;"><i class="ti ti-sparkles"></i>29 exp.</span></div></div></div>
+    </div>
+  </section>
+  <div class="stats-row">
+    <div class="stat"><p class="stn">120+</p><p class="stl">Destinations worldwide</p></div>
+    <div class="stat"><p class="stn">4,800+</p><p class="stl">Curated hotels</p></div>
+    <div class="stat"><p class="stn">900+</p><p class="stl">Unique experiences</p></div>
+    <div class="stat"><p class="stn">62</p><p class="stl">Countries covered</p></div>
+  </div>
+  <div class="cta-band" style="margin-top:2rem;">
+    <div class="hg" style="border-radius:3px;"></div>
+    <div class="cta-content"><h2 class="cta-title">Your destination isn't listed?<br>Tell us where you want to <em>go</em>.</h2><p class="cta-sub">Our team is constantly adding new destinations — let us know what's on your list.</p></div>
+    <button class="btn-cta" onclick="openModal('signinModal')">Request a destination ↗</button>
+  </div>
+  <footer class="footer">
+    <div class="footer-logo" onclick="location.href='index.html'" style="cursor:pointer;">Velour</div>
+    <ul class="footer-links">
+      <li><a href="#" onclick="showToast('Privacy policy coming soon')">Privacy</a></li>
+      <li><a href="#" onclick="showToast('Terms coming soon')">Terms</a></li>
+      <li><a href="#" onclick="showToast('Careers coming soon')">Careers</a></li>
+      <li><a href="#" onclick="showToast('Press kit coming soon')">Press</a></li>
+    </ul>
+    <p class="footer-copy">© 2026 Velour Travel Ltd.</p>
+  </footer>
+</div>
+
+<script>
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').innerHTML = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) closeModal(o.id); });
+});
+function handleSignIn() { closeModal('signinModal'); showToast('Welcome back to Velour ✦'); }
+
+function navToDestination(dest) {
+  location.href = 'hotels.html?dest=' + encodeURIComponent(dest);
+}
+
+function setRegion(btn) {
+  document.querySelectorAll('.reg-pill').forEach(p => p.classList.remove('on'));
+  btn.classList.add('on');
+  const reg = btn.dataset.reg;
+  document.querySelectorAll('#destListGrid .lc').forEach(c => {
+    c.style.display = (reg === 'all' || c.dataset.reg === reg) ? '' : 'none';
+  });
+}
+
+function filterDests() {
+  const q = document.getElementById('destSearch').value.toLowerCase();
+  document.querySelectorAll('#destListGrid .lc').forEach(c => {
+    c.style.display = c.dataset.name.includes(q) ? '' : 'none';
+  });
+}
+
+function sortAZ() {
+  const grid = document.getElementById('destListGrid');
+  const cards = [...grid.querySelectorAll('.lc')];
+  cards.sort((a, b) => a.dataset.name.localeCompare(b.dataset.name));
+  cards.forEach(c => grid.appendChild(c));
+  showToast('Sorted A–Z');
+}
+</script>
+</body>
+</html>
